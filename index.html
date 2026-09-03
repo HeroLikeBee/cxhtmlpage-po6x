@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>诺安云 · 场景化平台全页面原型（含业主端）</title>
+<style>
+  :root{
+    --acc:#2b6de8;
+    --text:#1d2129; --text2:#4e5969; --text3:#86909c;
+    --border:#e5e6eb; --bg:#f2f3f5; --card:#fff;
+    --c-work:#2b6de8; --c-crm:#0ca678; --c-ops:#f76707;
+    --c-fin:#f59f00;  --c-bi:#7048e8;  --c-sys:#495057; --c-own:#12b886;
+    --anno:#ff9f1c;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-thumb{background:#d0d3d9;border-radius:3px}
+
+  /* ===== 顶部 ===== */
+  .topbar{height:56px;background:#fff;display:flex;align-items:center;gap:12px;
+    padding:0 16px;position:fixed;top:0;left:0;right:0;z-index:90;box-shadow:0 1px 0 var(--border)}
+  .logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;white-space:nowrap}
+  .logo i{width:26px;height:26px;border-radius:6px;color:#fff;font-style:normal;
+    background:linear-gradient(135deg,#1a3a6b,#2b6de8);display:flex;align-items:center;justify-content:center;font-size:13px}
+  .proto-tag{font-size:10px;color:#fff;background:var(--anno);border-radius:4px;padding:1px 6px;font-weight:600}
+  .plat-tabs{display:flex;gap:3px;margin-left:6px;overflow-x:auto}
+  .ptab{padding:7px 13px;border-radius:7px;font-size:13px;color:var(--text2);
+    border:1px solid transparent;transition:.15s;white-space:nowrap;position:relative}
+  .ptab:hover{background:var(--bg)}
+  .ptab.on{color:#fff;font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+  .ptab.owner-tab{border:1.5px dashed var(--c-own);color:var(--c-own)}
+  .ptab.owner-tab.on{background:var(--c-own);color:#fff;border-style:solid}
+  .ptab .sep{position:absolute;left:-6px;top:6px;bottom:6px;width:1px;background:var(--border)}
+  .top-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .gsearch{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);
+    border-radius:16px;height:32px;padding:0 12px;color:var(--text3);font-size:12.5px;width:190px}
+  .icon-btn{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+    color:var(--text2);position:relative;font-size:15px}
+  .icon-btn:hover{background:var(--bg)}
+  .badge{position:absolute;top:3px;right:3px;min-width:14px;height:14px;background:#fa5151;color:#fff;
+    border-radius:7px;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+  .user-chip{display:flex;align-items:center;gap:7px;padding:4px 10px 4px 4px;border-radius:16px;border:1px solid var(--border)}
+  .avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#5b8ff9,#2b6de8);
+    color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px}
+  .role-name{font-size:12.5px;color:var(--text2)}
+
+  /* ===== 框架 ===== */
+  .frame{display:flex;padding-top:56px;min-height:100vh}
+  .sidebar{width:212px;background:#fff;border-right:1px solid var(--border);
+    position:fixed;top:56px;bottom:0;left:0;overflow-y:auto;padding:12px 8px}
+  .side-cap{font-size:11px;color:var(--text3);text-align:center;margin:2px 0 10px;letter-spacing:1px}
+  .side-nav{display:none}.side-nav.on{display:block}
+  .sitem{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;
+    color:var(--text2);cursor:pointer;margin-bottom:2px;font-size:13px}
+  .sitem:hover{background:var(--bg)}
+  .sitem.on{background:color-mix(in srgb,var(--acc) 12%,#fff);color:var(--acc);font-weight:600}
+  .sitem .ic{width:20px;text-align:center;font-style:normal}
+  .sitem .cnt{margin-left:auto;font-size:11px;color:var(--text3);background:var(--bg);border-radius:8px;padding:0 7px}
+  .side-tip{margin:12px 6px 0;padding:9px 11px;background:var(--bg);border-radius:8px;
+    font-size:11px;color:var(--text3);line-height:1.7}
+  main{flex:1;margin-left:212px;padding:16px 22px 46px}
+  .crumb{font-size:12.5px;color:var(--text3);margin-bottom:12px}
+  .crumb b{color:var(--text2);font-weight:600}
+  .pg{display:none}.pg.on{display:block;animation:fadein .18s}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .page-head{display:flex;align-items:flex-end;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+  .page-head h1{font-size:21px;font-weight:700}
+  .page-head .who{font-size:12px;color:var(--text3);border:1px dashed var(--border);
+    border-radius:6px;padding:3px 10px;line-height:1.5}
+  .page-head .who b{display:block;color:var(--text2);font-size:12.5px}
+
+  /* ===== 通用 ===== */
+  .card{background:var(--card);border-radius:12px;box-shadow:0 1px 4px rgba(31,35,41,.06);
+    padding:16px 18px;margin-bottom:14px}
+  .card h3{font-size:14.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .card h3 .hint{font-size:11.5px;color:var(--text3);font-weight:400;margin-left:auto}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}
+  .ph{border:1.5px dashed #cfd4dc;border-radius:8px;display:flex;align-items:center;
+    justify-content:center;color:var(--text3);font-size:12px;text-align:center;
+    padding:14px;background:#fafbfc;min-height:52px;line-height:1.7}
+  .ph b{color:var(--text2)}
+  .tag{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 8px;
+    border-radius:10px;font-size:11px;white-space:nowrap}
+  .tag::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+  .t-blue{background:#eaf1fd;color:#2b6de8}.t-orange{background:#fff3e5;color:#d97b0f}
+  .t-green{background:#e8f8f2;color:#00a76e}.t-gray{background:#f2f3f5;color:#86909c}
+  .t-red{background:#ffece8;color:#fa5151}.t-purple{background:#f0edff;color:#7048e8}
+  .t-teal{background:#e6fcf5;color:#0ca678}.t-yellow{background:#fff9db;color:#e67700}
+  .subtabs{display:flex;gap:6px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;flex-wrap:wrap}
+  .stab{padding:5px 14px;border-radius:6px;font-size:12.5px;color:var(--text2);background:var(--bg)}
+  .stab.on{color:#fff;font-weight:600;background:var(--acc)}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  .kcard{background:#fff;border:1px solid #f0f1f3;border-radius:10px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .kcard .l{font-size:11.5px;color:var(--text3)}
+  .kcard .v{font-size:21px;font-weight:700;margin:3px 0 1px}
+  .kcard .s{font-size:11px;color:var(--text3)}
+  .page-note{margin-top:12px;font-size:11.5px;color:var(--text3);background:var(--bg);
+    border-radius:8px;padding:8px 12px;line-height:1.7}
+  .page-note b{color:var(--text2)}
+
+  /* 表格骨架 */
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{background:#fafbfc;text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);
+    font-weight:600;color:var(--text2);white-space:nowrap}
+  .tbl td{padding:10px 12px;border-bottom:1px solid #f0f1f3;vertical-align:middle}
+  .tbl tbody tr:hover{background:#fafbfc}
+  .sk{display:inline-block;height:10px;border-radius:5px;vertical-align:middle;
+    background:linear-gradient(90deg,#eef0f3 25%,#e4e7ec 37%,#eef0f3 63%);
+    background-size:300% 100%;animation:sh 1.4s infinite}
+  @keyframes sh{0%{background-position:100% 0}100%{background-position:0 0}}
+  .filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .f-in{height:30px;border:1px solid var(--border);border-radius:6px;padding:0 10px;
+    font-size:12px;background:#fff;color:var(--text3);min-width:110px;display:inline-flex;align-items:center}
+  .f-btn{height:30px;padding:0 14px;border-radius:6px;font-size:12px;color:#fff;background:var(--acc)}
+  .f-btn.ghost{background:#fff;color:var(--text2);border:1px solid var(--border)}
+
+  /* 横向条形 */
+  .colbar{margin-bottom:11px}
+  .colbar .lb{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px}
+  .colbar .bar{height:18px;border-radius:5px;background:#f0f1f3;overflow:hidden}
+  .colbar .bar i{display:flex;align-items:center;height:100%;border-radius:5px;
+    color:#fff;font-size:10.5px;font-style:normal;padding-left:8px;white-space:nowrap}
+
+  /* 流程步骤 */
+  .steps{display:flex;gap:0;align-items:flex-start;margin:6px 0 2px}
+  .step{flex:1;text-align:center;position:relative}
+  .step::before{content:"";position:absolute;top:8px;left:0;right:0;height:2px;background:#e5e6eb}
+  .step:first-child::before{left:50%}.step:last-child::before{right:50%}
+  .step i{width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid #c9cdd6;
+    display:inline-block;position:relative;z-index:1;font-style:normal}
+  .step.done i{border-color:#00b578;background:#00b578}
+  .step.cur i{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 15%,#fff)}
+  .step .t{font-size:10.5px;color:var(--text3);margin-top:5px;line-height:1.4}
+
+  /* 看板 */
+  .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .kcol{background:#fafbfc;border:1px solid #f0f1f3;border-radius:10px;padding:10px}
+  .kcol h4{font-size:12.5px;display:flex;align-items:center;gap:7px;margin-bottom:9px;color:var(--text2)}
+  .kcol h4 .n{margin-left:auto;background:var(--border);border-radius:8px;font-size:10.5px;padding:0 7px;color:var(--text3)}
+  .kcard2{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px}
+  .kcard2 .ti{font-weight:600;margin-bottom:5px;color:var(--text)}
+  .kcard2 .meta{color:var(--text3);font-size:11px;display:flex;gap:9px;flex-wrap:wrap;margin-top:6px}
+  .kcard2 .meta span{display:inline-flex;align-items:center;gap:3px}
+
+  /* 工作台 */
+  .greet{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#2b6de8,#4d8bf5);
+    color:#fff;border-radius:12px;padding:14px 20px;margin-bottom:14px;font-size:14.5px}
+  .greet b{font-size:16px}
+  .todo-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
+    background:#fafbfc;border:1px solid #f0f1f3;margin-bottom:7px}
+  .todo-item .cb{width:16px;height:16px;border:1.5px solid #c9cdd6;border-radius:4px;flex-shrink:0}
+  .todo-item.done .cb{background:#00b578;border-color:#00b578;position:relative}
+  .todo-item.done .cb::after{content:"✓";color:#fff;font-size:11px;position:absolute;left:2px;top:-1px}
+  .todo-item .txt{font-size:13px;color:var(--text2)}
+  .todo-item.done .txt{text-decoration:line-through;color:var(--text3)}
+  .todo-item .go{margin-left:auto;font-size:11px;color:#fff;border-radius:5px;padding:2px 10px;flex-shrink:0}
+  .prog-bar{flex:1;height:7px;background:#f0f1f3;border-radius:4px;overflow:hidden}
+  .prog-bar i{display:block;height:100%;border-radius:4px}
+  .sum-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .sum-kpi{background:#fafbfc;border:1px solid #f0f1f3;border-radius:8px;padding:10px 14px;text-align:center}
+  .sum-kpi .v{font-size:19px;font-weight:700}.sum-kpi .l{font-size:11.5px;color:var(--text3);margin-top:1px}
+  .qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .qcell{border:1px solid var(--border);border-radius:9px;padding:12px 6px;text-align:center;
+    font-size:12px;color:var(--text2);cursor:pointer;transition:.15s}
+  .qcell:hover{border-color:var(--acc);color:var(--acc);transform:translateY(-1px)}
+  .qcell i{display:block;font-style:normal;font-size:19px;margin-bottom:4px}
+  .msg-line{display:flex;gap:9px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed #f0f1f3;font-size:12.5px}
+  .msg-line:last-child{border:none}
+  .msg-line .dot{width:7px;height:7px;border-radius:50%;margin-top:6px;flex-shrink:0}
+  .cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+  .cal-day{background:#fafbfc;border:1px solid #f0f1f3;border-radius:8px;min-height:120px;padding:8px}
+  .cal-day .d{font-size:11px;color:var(--text3);margin-bottom:6px}
+  .cal-day.today{border-color:var(--acc);background:#f7faff}
+  .cal-ev{font-size:10.5px;border-radius:5px;padding:3px 6px;margin-bottom:4px;color:#fff;line-height:1.4}
+
+  /* 主线链 */
+  .chain{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:center;padding:6px 0}
+  .chain-node{border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:600;text-align:center;position:relative;line-height:1.4}
+  .chain-node small{display:block;font-weight:400;font-size:10px;opacity:.75}
+  .cn-a{background:#eaf1fd;color:#1864ab}.cn-b{background:#e7f5ff;color:#1864ab}
+  .cn-c{background:#e6fcf5;color:#087f5b}.cn-d{background:#fff3e5;color:#b06000}
+  .cn-e{background:#f0edff;color:#5f3dc4}.cn-f{background:#e8f8f2;color:#00875a}
+  .chain-arr{color:#adb5bd;font-size:15px}
+  .engine-mark{position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+    background:#fa5151;color:#fff;font-size:10px;border-radius:8px;padding:1px 8px;white-space:nowrap}
+  .milestone{display:flex;gap:0;align-items:flex-start;margin-top:8px}
+  .ms{flex:1;text-align:center;position:relative}
+  .ms::before{content:"";position:absolute;top:7px;left:0;right:0;height:2px;background:#e5e6eb}
+  .ms:first-child::before{left:50%}.ms:last-child::before{right:50%}
+  .ms i{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #c9cdd6;
+    display:inline-block;position:relative;z-index:1;font-style:normal}
+  .ms.done i{border-color:#00b578;background:#00b578}
+  .ms.cur i{border-color:#0ca678;box-shadow:0 0 0 3px #e6fcf5}
+  .ms .t{font-size:11px;color:var(--text3);margin-top:5px}
+  .kpi4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+
+  .warn-card{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:9px;font-size:12.5px;margin-bottom:8px}
+  .warn-card b{display:block}
+  .w-red{background:#ffece8;color:#c0392b}.w-orange{background:#fff3e5;color:#b06000}
+  .w-blue{background:#eaf1fd;color:#1864ab}.w-teal{background:#e6fcf5;color:#087f5b}
+
+  .duo-bar{margin-bottom:12px}
+  .duo-bar .lb{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px}
+  .duo-bar .bar{height:22px;border-radius:6px;position:relative;background:#eef2f7}
+  .duo-bar .bar i{position:absolute;top:0;bottom:0;display:flex;align-items:center;
+    padding-left:10px;color:#fff;font-size:11px;font-style:normal;border-radius:6px}
+  .goal-row{display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--text2);margin-bottom:9px}
+  .goal-row .gb{flex:1;height:9px;background:#f0f1f3;border-radius:5px;position:relative}
+  .goal-row .gb i{position:absolute;top:0;bottom:0;border-radius:5px}
+  .goal-row .gb em{position:absolute;top:-4px;bottom:-4px;width:2px;background:#fa5151;font-style:normal}
+
+  /* 树 & 值班表 & 权限矩阵 */
+  .tree{font-size:12.5px;line-height:2;color:var(--text2)}
+  .tree .tg{font-weight:600;color:var(--text)}
+  .tree .sub{padding-left:18px;border-left:1px dashed #d0d3d9;margin-left:6px}
+  table.mx{width:100%;border-collapse:collapse;font-size:12.5px}
+  .mx th,.mx td{border:1px solid var(--border);padding:8px 10px;text-align:center}
+  .mx th{background:#fafbfc;font-weight:600;font-size:12px}
+  .mx td:first-child,.mx th:first-child{text-align:left}
+  .yes{color:#00b578;font-weight:700}.no{color:#d0d3d9}
+  .duty-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+  .duty-cell{background:#fafbfc;border:1px solid #f0f1f3;border-radius:8px;padding:8px;min-height:86px;font-size:11px}
+  .duty-cell .d{color:var(--text3);font-size:10.5px;margin-bottom:5px}
+  .duty-cell .who{background:#fff;border:1px solid var(--border);border-radius:5px;padding:3px 6px;margin-bottom:4px}
+  .duty-cell.off{opacity:.55}
+  .folder{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .fcell{border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;font-size:12.5px;cursor:pointer}
+  .fcell:hover{border-color:var(--acc);color:var(--acc)}
+  .fcell i{display:block;font-style:normal;font-size:24px;margin-bottom:6px}
+  .fcell .n{font-size:10.5px;color:var(--text3)}
+
+  /* 标注模式 */
+  body.notes [data-note]{outline:2px dashed var(--anno);outline-offset:3px;border-radius:4px;position:relative}
+  body.notes [data-note]::after{content:attr(data-note);position:absolute;left:6px;top:-11px;z-index:60;
+    background:var(--anno);color:#fff;font-size:10.5px;padding:1px 8px;border-radius:8px;
+    white-space:nowrap;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.18);pointer-events:none}
+
+  /* 工具条 & 弹层 */
+  .toolbar{position:fixed;right:18px;bottom:18px;z-index:95;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+  .tb-btn{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--border);
+    border-radius:20px;padding:8px 16px;font-size:12.5px;color:var(--text2);
+    box-shadow:0 3px 10px rgba(0,0,0,.10);transition:.15s}
+  .tb-btn:hover{color:var(--acc);border-color:var(--acc)}
+  .tb-btn.on{background:var(--anno);border-color:var(--anno);color:#fff;font-weight:600}
+  .tb-title{font-size:10.5px;color:var(--text3);background:#fff;border-radius:12px;padding:2px 10px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+  .modal-mask{position:fixed;inset:0;background:rgba(29,33,41,.45);z-index:120;display:none;
+    align-items:center;justify-content:center;padding:30px}
+  .modal-mask.show{display:flex}
+  .modal{background:#fff;border-radius:16px;max-width:900px;width:100%;max-height:88vh;overflow-y:auto;padding:26px 30px}
+  .modal h2{font-size:18px;margin-bottom:4px}
+  .modal .sub{font-size:12.5px;color:var(--text3);margin-bottom:18px}
+  .ia-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .ia-card{border:1.5px solid var(--border);border-radius:12px;overflow:hidden}
+  .ia-head{color:#fff;padding:9px 14px;font-size:13px;font-weight:700}
+  .ia-head small{display:block;font-weight:400;font-size:10.5px;opacity:.85}
+  .ia-body{padding:10px 14px}
+  .ia-body .u{font-size:11px;color:var(--text3);margin-bottom:7px}
+  .ia-chip{display:inline-block;background:var(--bg);border-radius:5px;font-size:11px;
+    color:var(--text2);padding:2px 8px;margin:0 4px 5px 0}
+  .ia-arrow{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:16px 0 4px;font-size:11.5px;color:var(--text3)}
+  .ia-arrow b{color:var(--text2)}
+  .close-x{float:right;font-size:20px;color:var(--text3);padding:2px 8px}
+  .close-x:hover{color:var(--text)}
+
+  @media (max-width:1000px){
+    .sidebar{display:none} main{margin-left:0}
+    .grid2,.grid3,.kanban,.stats-row,.kpi4,.folder,.duty-grid,.cal-week,.ia-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= 顶部：7 个平台入口（6 员工端 + 1 业主端） ================= -->
+<header class="topbar">
+  <div class="logo"><i>诺</i>诺安云<span class="proto-tag">原型示意</span></div>
+  <nav class="plat-tabs" id="ptabs">
+    <button class="ptab" data-p="work" data-c="#2b6de8">🏠 工作台</button>
+    <button class="ptab" data-p="crm"  data-c="#0ca678">🤝 客户商机</button>
+    <button class="ptab" data-p="ops"  data-c="#f76707">🧯 消防作业</button>
+    <button class="ptab" data-p="fin"  data-c="#f59f00">💰 财务结算</button>
+    <button class="ptab" data-p="bi"   data-c="#7048e8">📊 经营分析</button>
+    <button class="ptab" data-p="sys"  data-c="#495057">⚙️ 系统管理</button>
+    <button class="ptab owner-tab" data-p="own" data-c="#12b886" title="业主独立视角，与员工端数据隔离">👥 业主自管</button>
+  </nav>
+  <div class="top-right">
+    <div class="gsearch">🔍 搜索客户 / 项目 / 工单…</div>
+    <div class="icon-btn">💬<span class="badge">9</span></div>
+    <div class="icon-btn">❓</div>
+    <div class="user-chip"><div class="avatar">张</div><span class="role-name">演示账号 · 全平台开放</span></div>
+  </div>
+</header>
+
+<div class="frame">
+  <!-- ================= 侧边栏：每个平台一份固定菜单 ================= -->
+  <aside class="sidebar">
+    <nav class="side-nav" data-p="work"><div class="side-cap">工 作 台</div>
+      <div class="sitem" data-target="work-todo"><i class="ic">📋</i>今日待办<span class="cnt">5</span></div>
+      <div class="sitem" data-target="work-myorders"><i class="ic">🧾</i>我的工单<span class="cnt">3</span></div>
+      <div class="sitem" data-target="work-msg"><i class="ic">💬</i>消息通知<span class="cnt">9</span></div>
+      <div class="sitem" data-target="work-cal"><i class="ic">📅</i>日程日历</div>
+      <div class="sitem" data-target="work-quick"><i class="ic">⭐</i>快捷入口</div>
+      <div class="side-tip">💡 清单是第一视觉区，数据摘要是第二视觉区——先“做什么”，再“看什么”。</div>
+    </nav>
+    <nav class="side-nav" data-p="crm"><div class="side-cap">客 户 商 机</div>
+      <div class="sitem" data-target="crm-cust"><i class="ic">🏢</i>客户管理</div>
+      <div class="sitem" data-target="crm-biz"><i class="ic">📈</i>商机管理</div>
+      <div class="sitem" data-target="crm-contract"><i class="ic">📑</i>合同管理</div>
+      <div class="sitem" data-target="crm-proj"><i class="ic">🏗️</i>项目管理</div>
+      <div class="sitem" data-target="crm-pay"><i class="ic">💰</i>回款管理</div>
+      <div class="side-tip">💡 从线索到回款的一条主线；合同签署后由<b>拆解引擎</b>自动生成项目与计划。</div>
+    </nav>
+    <nav class="side-nav" data-p="ops"><div class="side-cap">消 防 作 业</div>
+      <div class="sitem" data-target="ops-device"><i class="ic">📟</i>设备管理</div>
+      <div class="sitem" data-target="ops-maintain"><i class="ic">🔧</i>维保管理</div>
+      <div class="sitem" data-target="ops-check"><i class="ic">🧯</i>防火检查</div>
+      <div class="sitem" data-target="ops-test"><i class="ic">🔍</i>检测管理</div>
+      <div class="sitem" data-target="ops-train"><i class="ic">🎓</i>培训演练</div>
+      <div class="sitem" data-target="ops-emergency"><i class="ic">🚨</i>应急救援</div>
+      <div class="sitem" data-target="ops-order"><i class="ic">🗂️</i>工单中心<span class="cnt">12</span></div>
+      <div class="sitem" data-target="ops-duty"><i class="ic">🌙</i>值班管理</div>
+      <div class="side-tip">💡 面向技工/维保工程师/值班员；工单执行全流程闭环（接单→打卡→SOP→提交）。</div>
+    </nav>
+    <nav class="side-nav" data-p="fin"><div class="side-cap">财 务 结 算</div>
+      <div class="sitem" data-target="fin-flow"><i class="ic">🏦</i>资金流水</div>
+      <div class="sitem" data-target="fin-invoice"><i class="ic">🧾</i>发票管理</div>
+      <div class="sitem" data-target="fin-writeoff"><i class="ic">💧</i>回款核销</div>
+      <div class="sitem" data-target="fin-recon"><i class="ic">⚖️</i>对账管理</div>
+      <div class="sitem" data-target="fin-cost"><i class="ic">📉</i>成本核算</div>
+      <div class="sitem" data-target="fin-settle"><i class="ic">🧮</i>结算管理</div>
+      <div class="side-tip">💡 钱从哪来、花到哪去、是否超支——银企直连 + 自动对账。</div>
+    </nav>
+    <nav class="side-nav" data-p="bi"><div class="side-cap">经 营 分 析</div>
+      <div class="sitem" data-target="bi-board"><i class="ic">📊</i>经营看板</div>
+      <div class="sitem" data-target="bi-proj"><i class="ic">🏗️</i>项目利润</div>
+      <div class="sitem" data-target="bi-dept"><i class="ic">🏬</i>部门利润</div>
+      <div class="sitem" data-target="bi-cust"><i class="ic">🤝</i>客户利润</div>
+      <div class="sitem" data-target="bi-aging"><i class="ic">⏳</i>账龄分析</div>
+      <div class="sitem" data-target="bi-goal"><i class="ic">🎯</i>年度目标</div>
+      <div class="side-tip">💡 老板/管理层一屏看清“自营 + SaaS”双营收健康度。</div>
+    </nav>
+    <nav class="side-nav" data-p="sys"><div class="side-cap">系 统 管 理</div>
+      <div class="sitem" data-target="sys-org"><i class="ic">🧬</i>组织架构</div>
+      <div class="sitem" data-target="sys-role"><i class="ic">🔐</i>角色权限</div>
+      <div class="sitem" data-target="sys-flow"><i class="ic">✅</i>审批配置</div>
+      <div class="sitem" data-target="sys-set"><i class="ic">🛠️</i>平台设置</div>
+      <div class="sitem" data-target="sys-log"><i class="ic">📜</i>日志审计</div>
+      <div class="side-tip">💡 管理配置与业务操作彻底分离。</div>
+    </nav>
+    <nav class="side-nav" data-p="own"><div class="side-cap">业 主 自 管</div>
+      <div class="sitem" data-target="own-home"><i class="ic">🏠</i>服务总览</div>
+      <div class="sitem" data-target="own-patrol"><i class="ic">📟</i>设备巡检</div>
+      <div class="sitem" data-target="own-check"><i class="ic">🧯</i>防火检查</div>
+      <div class="sitem" data-target="own-risk"><i class="ic">⚠️</i>隐患整改</div>
+      <div class="sitem" data-target="own-train"><i class="ic">🎓</i>培训演练</div>
+      <div class="sitem" data-target="own-duty"><i class="ic">🌙</i>值班管理</div>
+      <div class="sitem" data-target="own-file"><i class="ic">🗄️</i>消防档案</div>
+      <div class="sitem" data-target="own-repair"><i class="ic">🆘</i>一键报修</div>
+      <div class="side-tip">💡 业主独立视角：只读设备/检查/隐患/档案 + 报修/签字交互，<b>与员工端数据完全隔离</b>。</div>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="crumb" id="crumb">工作台 / <b>今日待办</b></div>
+
+    <!-- ═══════════════ 工作台（5页） ═══════════════ -->
+    <section class="pg" data-page="work-todo" data-plat="work">
+      <div class="page-head"><h1>工作台 · 今日待办</h1><span class="who"><b>全员</b>每日上班第一件事</span></div>
+      <div class="greet" data-note="问候 + 今日任务计数：给用户明确的“今天做什么”">👋 上午好，<b>张经理</b>！今天有 <b>5 件事</b> 等你完成：</div>
+      <div class="grid3">
+        <div class="card" style="grid-row:span 2" data-note="第一视觉区：角色化工作台清单（完成即打勾，非弹窗引导）">
+          <h3>📋 今日清单（销售模板）<span class="hint">管理员可为各角色自定义</span></h3>
+          <div class="todo-item done"><span class="cb"></span><span class="txt">① 录入新客户档案（今日新增询价 3 条）</span><span class="go" style="background:#00b578">已完成</span></div>
+          <div class="todo-item"><span class="cb"></span><span class="txt">② 录入商机（已有 2 个待确认需求）</span><span class="go" style="background:var(--c-work)">去录入</span></div>
+          <div class="todo-item"><span class="cb"></span><span class="txt">③ 创建报价单（商机转化率 60%）</span><span class="go" style="background:var(--c-work)">去报价</span></div>
+          <div class="todo-item"><span class="cb"></span><span class="txt">④ 跟进待签合同（2 份待签署）</span><span class="go" style="background:var(--c-work)">去跟进</span></div>
+          <div class="todo-item"><span class="cb"></span><span class="txt">⑤ 处理今日待办（3 个待回访客户）</span><span class="go" style="background:var(--c-work)">去处理</span></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px;font-size:12px;color:var(--text3)">今日进度 <b>1/5</b>
+            <div class="prog-bar"><i style="width:20%;background:linear-gradient(90deg,#4d8bf5,#2b6de8)"></i></div>
+          </div>
+          <div style="margin-top:12px" data-note="第二视觉区：数据摘要（清单完成后再看数）">
+            <div class="sum-strip">
+              <div class="sum-kpi"><div class="v" style="color:#2b6de8">50万</div><div class="l">本月合同额</div></div>
+              <div class="sum-kpi"><div class="v" style="color:#0ca678">60%</div><div class="l">商机转化率</div></div>
+              <div class="sum-kpi"><div class="v" style="color:#f76707">20万</div><div class="l">待回款</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card"><h3>🧾 我的工单</h3>
+          <div class="msg-line"><span class="dot" style="background:#ff922b"></span><div><b>XX 大厦 · 烟感巡检</b><br><span style="color:var(--text3)">今日 14:00 前 · 待执行 SOP</span></div><span class="tag t-orange" style="margin-left:auto">进行中</span></div>
+          <div class="msg-line"><span class="dot" style="background:#2b6de8"></span><div><b>XX 厂区 · 应急维修</b><br><span style="color:var(--text3)">SLA 剩余 2h</span></div><span class="tag t-blue" style="margin-left:auto">待接单</span></div>
+          <div class="msg-line"><span class="dot" style="background:#00b578"></span><div><b>XX 酒店 · 月度维保</b><br><span style="color:var(--text3)">待业主签字</span></div><span class="tag t-green" style="margin-left:auto">已完成</span></div>
+        </div>
+        <div class="card"><h3>⭐ 快捷入口</h3>
+          <div class="qgrid"><div class="qcell"><i>🧾</i>创建工单</div><div class="qcell"><i>🏢</i>新建客户</div><div class="qcell"><i>✅</i>发起审批</div></div>
+        </div>
+        <div class="card"><h3>💬 消息通知</h3>
+          <div class="msg-line"><span class="dot" style="background:#fa5151"></span><div><b>⚠️ 逾期提醒</b>：XX 项目回款逾期 15 天</div></div>
+          <div class="msg-line"><span class="dot" style="background:#f59f00"></span><div><b>📅 到期提醒</b>：XX 合同 60 天后到期</div></div>
+        </div>
+        <div class="card"><h3>📅 今日日程</h3>
+          <div class="msg-line"><span class="dot" style="background:#2b6de8"></span><div><b>09:30</b> 项目启动会 · XX 大厦消防改造</div></div>
+          <div class="msg-line"><span class="dot" style="background:#2b6de8"></span><div><b>14:00</b> 客户回访 · XX 物业（续约）</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="work-myorders" data-plat="work">
+      <div class="page-head"><h1>我的工单</h1><span class="who"><b>技工 / 维保工程师</b>只看分配给我的</span></div>
+      <div class="card">
+        <div class="kanban">
+          <div class="kcol"><h4>📥 待接单<span class="n">1</span></h4><div class="kcard2"><div class="ti">XX 厂区 · 应急维修</div><span class="tag t-red">SLA 2h</span><div class="meta"><span>📍 待打卡</span></div></div></div>
+          <div class="kcol"><h4>🔧 进行中<span class="n">1</span></h4><div class="kcard2"><div class="ti">XX 大厦 · 烟感巡检</div><span class="tag t-orange">SOP 6/12</span><div class="meta"><span>📷 水印 4 张</span></div></div></div>
+          <div class="kcol"><h4>📤 待提交<span class="n">1</span></h4><div class="kcard2"><div class="ti">XX 医院 · 季度维保</div><span class="tag t-purple">待业主签名</span></div></div>
+          <div class="kcol"><h4>✅ 已完成<span class="n">6</span></h4><div class="kcard2"><div class="ti">XX 酒店 · 月度维保</div><span class="tag t-green">已归档</span><div class="meta"><span>✍ 已签名</span></div></div></div>
+        </div>
+        <div class="page-note">💡 与「消防作业 → 工单中心」的区别：此处<b>只显示“我”的工单</b>并按执行步骤组织；工单中心是全团队调度视角。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="work-msg" data-plat="work">
+      <div class="page-head"><h1>消息通知</h1><span class="who"><b>全员</b>非阻塞 · 浮窗通知为主</span></div>
+      <div class="card">
+        <div class="subtabs"><span class="stab on">全部 9</span><span class="stab">审批 3</span><span class="stab">预警 4</span><span class="stab">系统 2</span></div>
+        <div class="msg-line"><span class="dot" style="background:#fa5151"></span><div><b>[预警]</b> XX 物业回款逾期 90 天，已自动关联责任销售</div><span class="tag t-red" style="margin-left:auto">今天 09:12</span></div>
+        <div class="msg-line"><span class="dot" style="background:#f59f00"></span><div><b>[预警]</b> XX 合同 60 天后到期，可生成续约商机</div><span class="tag t-yellow" style="margin-left:auto">今天 08:30</span></div>
+        <div class="msg-line"><span class="dot" style="background:#2b6de8"></span><div><b>[审批]</b> 你提交的报价单已通过（审批人：诺总）</div><span class="tag t-blue" style="margin-left:auto">昨天 17:40</span></div>
+        <div class="msg-line"><span class="dot" style="background:#12b886"></span><div><b>[系统]</b> 监管平台上报成功：XX 项目维保报告已备案</div><span class="tag t-teal" style="margin-left:auto">昨天 16:05</span></div>
+        <div class="page-note">💡 设计原则：能用<b>浮窗</b>的不弹窗、能用 <b>Drawer 侧滑</b>的不跳页，减少打断（对应体验优化 3.4.4）。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="work-cal" data-plat="work">
+      <div class="page-head"><h1>日程日历</h1><span class="who"><b>全员</b>工单排期 / 会议 / 回访聚合</span></div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">2026年9月 ▾</span><span class="f-in">周 / 月切换</span><button class="f-btn">＋ 新建日程</button></div>
+        <div class="cal-week">
+          <div class="cal-day"><div class="d">周一 9/1</div></div>
+          <div class="cal-day today"><div class="d">周二 9/2 · 今天</div><div class="cal-ev" style="background:#2b6de8">09:30 项目启动会</div><div class="cal-ev" style="background:#0ca678">14:00 客户回访</div><div class="cal-ev" style="background:#f76707">16:30 报价评审</div></div>
+          <div class="cal-day"><div class="d">周三 9/3</div><div class="cal-ev" style="background:#7048e8">月度经营复盘</div></div>
+          <div class="cal-day"><div class="d">周四 9/4</div></div>
+          <div class="cal-day"><div class="d">周五 9/5</div><div class="cal-ev" style="background:#f59f00">质保金到期提醒</div></div>
+          <div class="cal-day off" style="opacity:.6"><div class="d">周六 9/6</div></div>
+          <div class="cal-day off" style="opacity:.6"><div class="d">周日 9/7</div></div>
+        </div>
+        <div class="page-note">💡 日程聚合三类来源：<b>工单排期（自动）· 会议（手动）· 系统提醒（自动）</b>，颜色区分来源。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="work-quick" data-plat="work">
+      <div class="page-head"><h1>快捷入口</h1><span class="who"><b>全员</b>自定义收藏 · 一键直达</span></div>
+      <div class="card">
+        <h3>⭐ 我的快捷入口<span class="hint">拖拽排序 · 最多 12 个</span></h3>
+        <div class="qgrid">
+          <div class="qcell"><i>🧾</i>创建工单<span class="n" style="font-size:10px;color:var(--text3)">固定</span></div>
+          <div class="qcell"><i>🏢</i>新建客户</div><div class="qcell"><i>📈</i>录入商机</div>
+          <div class="qcell"><i>📑</i>发起合同</div><div class="qcell"><i>✅</i>发起审批</div><div class="qcell"><i>📷</i>扫码巡检</div>
+          <div class="qcell"><i>📊</i>查看报表</div><div class="qcell"><i>💰</i>我的绩效</div><div class="qcell">＋ 添加</div>
+        </div>
+        <div class="page-note">💡 解决“功能多找不到”：<b>高频操作收藏化</b> + 全局搜索兜底，保证任意功能 ≤3 次点击到达。</div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ 客户商机（5页） ═══════════════ -->
+    <section class="pg" data-page="crm-cust" data-plat="crm">
+      <div class="page-head"><h1>客户管理</h1><span class="who"><b>销售 / 项目经理 / 老板</b>客户资产化，离职带不走</span></div>
+      <div class="stats-row">
+        <div class="kcard"><div class="l">客户总数</div><div class="v" style="color:#0ca678">128</div><div class="s">本月新增 6</div></div>
+        <div class="kcard"><div class="l">🟢 绿灯（优质）</div><div class="v">86</div><div class="s">可重点争取增购</div></div>
+        <div class="kcard"><div class="l">🟡 黄灯（关注）</div><div class="v">31</div><div class="s">已提醒制定改善计划</div></div>
+        <div class="kcard"><div class="l">🔴 红灯（高风险）</div><div class="v">11</div><div class="s" style="color:#fa5151">已推送销售总监挽留</div></div>
+      </div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">客户名称 / 编号</span><span class="f-in">健康度 ▾</span><span class="f-in">行业 ▾</span><span class="f-in">负责人 ▾</span><button class="f-btn">查询</button><button class="f-btn ghost">＋ 新建客户</button></div>
+        <table class="tbl"><thead><tr><th>客户名称</th><th>行业</th><th>健康度</th><th>累计合同额</th><th>回款状态</th><th>负责人</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td><b>XX 物业公司</b></td><td><span class="sk" style="width:50px"></span></td><td><span class="tag t-red">红灯 · 流失预警</span></td><td><span class="sk" style="width:60px"></span></td><td><span class="tag t-red">逾期 90 天</span></td><td><span class="sk" style="width:50px"></span></td><td><span class="tag t-blue">详情</span></td></tr>
+          <tr><td><b>XX 大厦管理处</b></td><td><span class="sk" style="width:50px"></span></td><td><span class="tag t-green">绿灯 · 优质</span></td><td><span class="sk" style="width:60px"></span></td><td><span class="tag t-green">正常</span></td><td><span class="sk" style="width:50px"></span></td><td><span class="tag t-blue">详情</span></td></tr>
+          <tr><td><b>XX 学校</b></td><td><span class="sk" style="width:50px"></span></td><td><span class="tag t-orange">黄灯 · 关注</span></td><td><span class="sk" style="width:60px"></span></td><td><span class="tag t-orange">回款周期 60 天</span></td><td><span class="sk" style="width:50px"></span></td><td><span class="tag t-blue">详情</span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 健康度五维模型：<b>信用 / 服务 / 设备 / 合规 / 续约</b> 加权 0-100 分自动分级（对应 3.3.1）。红灯自动触发挽留流程。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="crm-biz" data-plat="crm">
+      <div class="page-head"><h1>商机管理</h1><span class="who"><b>销售</b>管道可视化 · 撞单处理 · 丢单复盘</span></div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">按负责人 ▾</span><span class="f-in">按阶段 ▾</span><button class="f-btn">＋ 录入商机</button></div>
+        <div class="kanban" style="grid-template-columns:repeat(5,1fr)">
+          <div class="kcol"><h4>🏷️ 已登记<span class="n">8</span></h4><div class="kcard2"><div class="ti">XX 仓库烟感改造</div><span class="tag t-gray">来源：陌拜</span></div></div>
+          <div class="kcol"><h4>🔍 已勘察<span class="n">5</span></h4><div class="kcard2"><div class="ti">XX 酒店维保续签</div><span class="tag t-teal">预估 18万</span></div></div>
+          <div class="kcol"><h4>📄 已报价<span class="n">4</span></h4><div class="kcard2"><div class="ti">XX 厂区年度检测</div><span class="tag t-yellow">报价 9.5万 待批</span></div></div>
+          <div class="kcol"><h4>🤝 谈判中<span class="n">3</span></h4><div class="kcard2"><div class="ti">XX 商场消防改造</div><span class="tag t-blue">毛利率 42%</span></div></div>
+          <div class="kcol"><h4>✍ 待签约<span class="n">2</span></h4><div class="kcard2"><div class="ti">XX 物业三年维保</div><span class="tag t-green">合同草稿已生成</span></div></div>
+        </div>
+        <div class="page-note">💡 商机卡片字段：<b>来源 / 预估金额 / 阶段 / 撞单标记</b>；丢单后强制填写原因，汇总为「丢单分析报告」（对应第 0 层动作链）。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="crm-contract" data-plat="crm">
+      <div class="page-head"><h1>合同管理</h1><span class="who"><b>销售 / 财务</b>签署 → 归档 → 拆解为项目+计划+回款</span></div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">合同名称 / 编号</span><span class="f-in">签署状态 ▾</span><span class="f-in">到期时间 ▾</span><button class="f-btn">查询</button><button class="f-btn ghost">📷 OCR 录入</button></div>
+        <table class="tbl"><thead><tr><th>合同名称</th><th>客户</th><th>金额</th><th>签署状态</th><th>拆解状态</th><th>到期提醒</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td><b>XX 大厦维保合同（3年）</b></td><td><span class="sk" style="width:60px"></span></td><td><span class="sk" style="width:55px"></span></td><td><span class="tag t-green">已签署</span></td><td><span class="tag t-purple">⚡ 已生成项目+回款</span></td><td><span class="tag t-yellow">60 天后到期</span></td><td><span class="tag t-blue">详情</span></td></tr>
+          <tr><td><b>XX 厂区检测合同</b></td><td><span class="sk" style="width:60px"></span></td><td><span class="sk" style="width:55px"></span></td><td><span class="tag t-blue">待签（电子签）</span></td><td><span class="tag t-gray">待签署</span></td><td>—</td><td><span class="tag t-blue">详情</span></td></tr>
+          <tr><td><b>XX 学校维保续约</b></td><td><span class="sk" style="width:60px"></span></td><td><span class="sk" style="width:55px"></span></td><td><span class="tag t-green">已签署</span></td><td><span class="tag t-purple">⚡ 已生成项目+回款</span></td><td><span class="tag t-red">90 天内到期</span></td><td><span class="tag t-blue">详情</span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 到期前 <b>90/60/30/15 天</b>自动提醒；到期前 60 天自动生成续约商机。支持上传扫描件 <b>OCR 自动填充</b>关键字段（3.4.4）。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="crm-proj" data-plat="crm">
+      <div class="page-head"><h1>项目管理</h1><span class="who"><b>项目经理</b>项目全景看板 · 一屏总览全生命周期</span></div>
+      <div class="card" data-note="业务主线链：合同节点由拆解引擎自动向下生成">
+        <h3>🔗 业务主线（数据全打通）<span class="hint">客户 → 商机 → 报价 → 合同 → 项目 → 回款</span></h3>
+        <div class="chain">
+          <span class="chain-node cn-a">客户<small>建档/分级</small></span><span class="chain-arr">→</span>
+          <span class="chain-node cn-b">商机<small>跟进/复盘</small></span><span class="chain-arr">→</span>
+          <span class="chain-node cn-c">报价单<small>勘察/审批</small></span><span class="chain-arr">→</span>
+          <span class="chain-node cn-d">合同<small>签署/归档</small></span><span class="chain-arr">→</span>
+          <span class="chain-node cn-e" style="position:relative"><i class="engine-mark">⚡ 拆解引擎</i>项目<small>自动立项</small></span><span class="chain-arr">→</span>
+          <span class="chain-node cn-f">回款<small>4 节点</small></span>
+        </div>
+      </div>
+      <div class="card" data-note="项目全景看板：六大 Tab 一屏总览">
+        <div class="subtabs"><span class="stab on">概况</span><span class="stab">实施</span><span class="stab">成本</span><span class="stab">收款</span><span class="stab">合同</span><span class="stab">资料</span></div>
+        <div class="kpi4">
+          <div class="kcard"><div class="l">合同金额</div><div class="v" style="color:#0ca678">120万</div><div class="s">维保 3 年 · 含检测 2 次</div></div>
+          <div class="kcard"><div class="l">已收 / 待收</div><div class="v">36万</div><div class="s" style="color:#f76707">待收 24万（进度款）</div></div>
+          <div class="kcard"><div class="l">已发生成本</div><div class="v">18.2万</div><div class="s">人工 9.5 · 材料 4.2 · 分包 4.5</div></div>
+          <div class="kcard"><div class="l">项目毛利率</div><div class="v" style="color:#7048e8">34.8%</div><div class="s" style="color:#00b578">▲ 健康（阈值 20%）</div></div>
+        </div>
+        <h3>📍 里程碑<span class="hint">延期自动预警</span></h3>
+        <div class="milestone">
+          <div class="ms done"><i></i><div class="t">立项 ✓</div></div>
+          <div class="ms done"><i></i><div class="t">进场 ✓</div></div>
+          <div class="ms cur"><i></i><div class="t">隐蔽验收（进行中）</div></div>
+          <div class="ms"><i></i><div class="t">调试验收</div></div>
+          <div class="ms"><i></i><div class="t">竣工归档</div></div>
+          <div class="ms"><i></i><div class="t">结算</div></div>
+        </div>
+        <div class="ph" style="margin-top:12px">实施 Tab：设备配置 / 值班 / 巡检 / 防火检查 / 隐患整改 / 培训演练 / 维保 / 检测 —— 八类进度可快捷创建任务工单</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="crm-pay" data-plat="crm">
+      <div class="page-head"><h1>回款管理</h1><span class="who"><b>财务 / 销售</b>合同拆解出的 4 类节点自动跟踪</span></div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">客户 / 合同</span><span class="f-in">节点类型 ▾</span><span class="f-in">状态 ▾</span><button class="f-btn">查询</button></div>
+        <table class="tbl"><thead><tr><th>关联合同</th><th>节点</th><th>应收</th><th>已收</th><th>到期日</th><th>状态</th><th>责任人</th></tr></thead>
+        <tbody>
+          <tr><td><b>XX 大厦维保（3年）</b></td><td><span class="tag t-teal">预付款</span></td><td>18万</td><td>18万</td><td><span class="sk" style="width:70px"></span></td><td><span class="tag t-green">已核销</span></td><td><span class="sk" style="width:50px"></span></td></tr>
+          <tr><td><b>XX 大厦维保（3年）</b></td><td><span class="tag t-blue">进度款</span></td><td>24万</td><td>0</td><td><span class="sk" style="width:70px"></span></td><td><span class="tag t-orange">待开票</span></td><td><span class="sk" style="width:50px"></span></td></tr>
+          <tr><td><b>XX 物业维保</b></td><td><span class="tag t-purple">质保金</span></td><td>42万</td><td>0</td><td><span class="sk" style="width:70px"></span></td><td><span class="tag t-red">逾期 90 天</span></td><td><span class="sk" style="width:50px"></span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 四类节点：<b>预付 / 进度 / 验收 / 质保金</b>；合同拆解引擎按节点自动生成应收，逾期自动升级催收（对应第 4 层回款催收动作链）。</div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ 消防作业（8页） ═══════════════ -->
+    <section class="pg" data-page="ops-device" data-plat="ops">
+      <div class="page-head"><h1>设备管理</h1><span class="who"><b>技工 / 值班员</b>台账 + 物联监测统一入口</span></div>
+      <div class="stats-row">
+        <div class="kcard"><div class="l">设备总数</div><div class="v" style="color:#f76707">2,436</div><div class="s">32 个项目</div></div>
+        <div class="kcard"><div class="l">在线</div><div class="v" style="color:#00b578">2,201</div><div class="s">在线率 90.3%</div></div>
+        <div class="kcard"><div class="l">离线</div><div class="v" style="color:#86909c">183</div><div class="s">待排查</div></div>
+        <div class="kcard"><div class="l">故障 / 报警</div><div class="v" style="color:#fa5151">52</div><div class="s" style="color:#fa5151">异常趋势分析（P2）</div></div>
+      </div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">项目 ▾</span><span class="f-in">区域 ▾</span><span class="f-in">设备类型 ▾</span><span class="f-in">状态 ▾</span><button class="f-btn">查询</button></div>
+        <table class="tbl"><thead><tr><th>设备编号</th><th>类型</th><th>位置</th><th>物联状态</th><th>最近巡检</th><th>下次巡检</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td><b>YG-0121</b></td><td>烟感探测器</td><td><span class="sk" style="width:80px"></span></td><td><span class="tag t-red">报警</span></td><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:70px"></span></td><td><span class="tag t-blue">详情</span></td></tr>
+          <tr><td><b>XS-0087</b></td><td>消火栓</td><td><span class="sk" style="width:80px"></span></td><td><span class="tag t-green">正常</span></td><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:70px"></span></td><td><span class="tag t-blue">详情</span></td></tr>
+          <tr><td><b>PF-0210</b></td><td>喷淋末端</td><td><span class="sk" style="width:80px"></span></td><td><span class="tag t-gray">离线</span></td><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:70px"></span></td><td><span class="tag t-blue">详情</span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 统一物联监测入口（解决原“入口分散”）；支持按<b>项目/区域/设备类型</b>筛选；异常趋势分析替代单点报警（3.4.5）。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="ops-maintain" data-plat="ops">
+      <div class="page-head"><h1>维保管理</h1><span class="who"><b>维保主管</b>计划 → 排期 → 工单 → 记录 → 报告</span></div>
+      <div class="card">
+        <div class="subtabs"><span class="stab on">计划排期</span><span class="stab">维保工单</span><span class="stab">执行记录</span><span class="stab">维保报告</span></div>
+        <div class="filter-bar"><span class="f-in">项目 ▾</span><span class="f-in">服务频次 ▾</span><span class="f-in">负责人 ▾</span><button class="f-btn">查询</button></div>
+        <table class="tbl"><thead><tr><th>维保计划</th><th>服务范围</th><th>频次</th><th>SLA</th><th>下次执行</th><th>负责人</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td><b>XX 大厦月度维保</b></td><td><span class="sk" style="width:100px"></span></td><td>每月 1 次</td><td>响应 ≤2h</td><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:50px"></span></td><td><span class="tag t-green">排期已下达</span></td></tr>
+          <tr><td><b>XX 厂区季度维保</b></td><td><span class="sk" style="width:100px"></span></td><td>每季 1 次</td><td>响应 ≤4h</td><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:50px"></span></td><td><span class="tag t-orange">待排期</span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 排期下达后<b>自动生成工单并推送责任人</b>；维保工单完工自动生成标准报告并<b>上报监管平台</b>（对应 3.1.2 上报引擎）。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="ops-check" data-plat="ops">
+      <div class="page-head"><h1>防火检查</h1><span class="who"><b>技工 / 值班员</b>SOP 在线化 · 水印留痕</span></div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">项目 ▾</span><span class="f-in">检查类型 ▾</span><span class="f-in">状态 ▾</span><button class="f-btn">查询</button></div>
+        <table class="tbl"><thead><tr><th>检查任务</th><th>检查范围</th><th>SOP 完成度</th><th>发现隐患</th><th>水印照片</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td><b>XX 商场每日防火巡查</b></td><td><span class="sk" style="width:100px"></span></td><td><div class="prog-bar" style="width:90px;display:inline-flex;vertical-align:middle"><i style="width:60%;background:#f76707"></i></div> 6/10</td><td><span class="tag t-orange">2 项待整改</span></td><td><span class="sk" style="width:50px"></span></td><td><span class="tag t-blue">进行中</span></td></tr>
+          <tr><td><b>XX 学校周检查</b></td><td><span class="sk" style="width:100px"></span></td><td><div class="prog-bar" style="width:90px;display:inline-flex;vertical-align:middle"><i style="width:100%;background:#00b578"></i></div> 10/10</td><td><span class="tag t-green">无异常</span></td><td><span class="sk" style="width:50px"></span></td><td><span class="tag t-green">已完成</span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 检查项按 <b>SOP 清单勾选</b>，照片强制<b>水印相机</b>（时间+经纬度+项目+工单号）；发现异常一键转「隐患整改」。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="ops-test" data-plat="ops">
+      <div class="page-head"><h1>检测管理</h1><span class="who"><b>检测员</b>检测作业 → 报告 → 监管备案</span></div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">项目 ▾</span><span class="f-in">检测依据 ▾</span><span class="f-in">备案状态 ▾</span><button class="f-btn">查询</button></div>
+        <table class="tbl"><thead><tr><th>检测任务</th><th>检测依据</th><th>检测时间</th><th>记录进度</th><th>官方编号</th><th>备案状态</th></tr></thead>
+        <tbody>
+          <tr><td><b>XX 大厦年度检测</b></td><td>GB50166 等</td><td><span class="sk" style="width:70px"></span></td><td><div class="prog-bar" style="width:90px;display:inline-flex;vertical-align:middle"><i style="width:45%;background:#f76707"></i></div> 84/185</td><td><span class="tag t-gray">待获取</span></td><td><span class="tag t-orange">待上报</span></td></tr>
+          <tr><td><b>XX 厂区验收检测</b></td><td><span class="sk" style="width:60px"></span></td><td><span class="sk" style="width:70px"></span></td><td><div class="prog-bar" style="width:90px;display:inline-flex;vertical-align:middle"><i style="width:100%;background:#00b578"></i></div> 14/14</td><td><b style="font-size:12px">20250815007</b></td><td><span class="tag t-green">已备案 ✓</span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 检测时间约束：合同生效后 <b>11 个月内</b>；报告生成后<b>自动上报监管平台并回填官方编号</b>，失败进入重试队列（3.1.2 P0）。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="ops-train" data-plat="ops">
+      <div class="page-head"><h1>培训演练</h1><span class="who"><b>项目经理</b>面向业主单位的培训与演练记录</span></div>
+      <div class="grid2">
+        <div class="card"><h3>🎓 培训课程</h3>
+          <table class="tbl"><thead><tr><th>课程</th><th>对象</th><th>状态</th></tr></thead><tbody>
+            <tr><td><b>灭火器使用实操</b></td><td><span class="sk" style="width:60px"></span></td><td><span class="tag t-green">已完成</span></td></tr>
+            <tr><td><b>疏散演练组织</b></td><td><span class="sk" style="width:60px"></span></td><td><span class="tag t-orange">待安排</span></td></tr>
+          </tbody></table>
+        </div>
+        <div class="card"><h3>🚶 演练记录</h3>
+          <table class="tbl"><thead><tr><th>演练</th><th>日期</th><th>参与人数</th><th>记录</th></tr></thead><tbody>
+            <tr><td><b>XX 大厦消防疏散演练</b></td><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:40px"></span></td><td><span class="tag t-teal">含水印照片 12 张</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="card"><div class="ph">培训/演练记录自动归档至「消防档案」，供业主向监管展示；平台侧可关联<b>知识库课程与考试</b>（3.6.2）</div></div>
+    </section>
+
+    <section class="pg" data-page="ops-emergency" data-plat="ops">
+      <div class="page-head"><h1>应急救援</h1><span class="who"><b>调度 / 技工</b>故障报修 → 应急派工 → 闭环</span></div>
+      <div class="card">
+        <h3>🚨 应急维修标准动作链<span class="hint">对应第 4 层故障维修（7 个动作）</span></h3>
+        <div class="steps">
+          <div class="step done"><i></i><div class="t">报修<br>（业主端一键）</div></div>
+          <div class="step done"><i></i><div class="t">应急派工</div></div>
+          <div class="step cur"><i></i><div class="t">到场打卡<br>SLA 剩余 2h</div></div>
+          <div class="step"><i></i><div class="t">诊断</div></div>
+          <div class="step"><i></i><div class="t">维修</div></div>
+          <div class="step"><i></i><div class="t">验证</div></div>
+          <div class="step"><i></i><div class="t">完工确认</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>📋 进行中的应急单</h3>
+        <table class="tbl"><thead><tr><th>工单</th><th>故障描述</th><th>报修来源</th><th>SLA 倒计时</th><th>当前节点</th><th>状态</th></tr></thead><tbody>
+          <tr><td><b>XX 厂区 · 应急维修</b></td><td><span class="sk" style="width:100px"></span></td><td><span class="tag t-teal">业主端报修</span></td><td><span class="tag t-red">⏱ 2h</span></td><td><span class="tag t-blue">待到场</span></td><td>处理中</td></tr>
+          <tr><td><b>XX 酒店 · 消火栓漏水</b></td><td><span class="sk" style="width:100px"></span></td><td><span class="tag t-gray">物联报警</span></td><td><span class="tag t-green">已完成</span></td><td><span class="tag t-green">待业主验证</span></td><td>收尾</td></tr>
+        </tbody></table>
+        <div class="page-note">💡 SLA 倒计时预警；换件工单触发<b>扫码出库</b>联动库存；业主端可实时查看进度并电子签名确认。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="ops-order" data-plat="ops">
+      <div class="page-head"><h1>工单中心</h1><span class="who"><b>调度 / 主管</b>全团队工单状态总览</span></div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">项目 ▾</span><span class="f-in">工单类型 ▾</span><span class="f-in">负责人 ▾</span><button class="f-btn">＋ 创建工单</button></div>
+        <div class="kanban" data-note="工单状态自动流转：待接单 → 进行中 → 待提交 → 已完成">
+          <div class="kcol"><h4>📥 待接单<span class="n">2</span></h4>
+            <div class="kcard2"><div class="ti">XX 厂区 · 应急维修</div><span class="tag t-red">SLA 2h</span><div class="meta"><span>📍 待打卡</span></div></div>
+            <div class="kcard2"><div class="ti">XX 酒店 · 月度巡检</div><span class="tag t-blue">常规</span></div></div>
+          <div class="kcol"><h4>🔧 进行中<span class="n">3</span></h4>
+            <div class="kcard2"><div class="ti">XX 大厦 · 烟感巡检</div><span class="tag t-orange">SOP 6/12</span><div class="meta"><span>📷 水印 4 张</span></div></div>
+            <div class="kcard2"><div class="ti">XX 学校 · 消火栓检修</div><span class="tag t-orange">换件中</span><div class="meta"><span>📦 待领料 2 件</span></div></div>
+            <div class="kcard2"><div class="ti">XX 商场 · 防火检查</div><span class="tag t-orange">执行中</span></div></div>
+          <div class="kcol"><h4>📤 待提交<span class="n">1</span></h4>
+            <div class="kcard2"><div class="ti">XX 医院 · 季度维保</div><span class="tag t-purple">待业主签名</span><div class="meta"><span>📷 水印 11 张</span><span>☑ SOP 12/12</span></div></div></div>
+          <div class="kcol"><h4>✅ 已完成<span class="n">6</span></h4>
+            <div class="kcard2"><div class="ti">XX 大厦 · 月度维保</div><span class="tag t-green">已归档</span><div class="meta"><span>✍ 已签名</span><span>📄 报告已生成</span></div></div>
+            <div class="kcard2"><div class="ti">XX 厂区 · 故障维修</div><span class="tag t-green">已归档</span></div></div>
+        </div>
+        <div class="page-note">💡 工单卡要素：<b>水印照片（不可篡改）· SOP 勾选 · 业主电子签名</b>——执行记录层自动沉淀，支撑监管倒查。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="ops-duty" data-plat="ops">
+      <div class="page-head"><h1>值班管理</h1><span class="who"><b>主管 / 值班员</b>排班 · 日志 · 交班</span></div>
+      <div class="card">
+        <div class="subtabs"><span class="stab on">值班排班</span><span class="stab">值班日志</span><span class="stab">值班交班</span></div>
+        <div class="filter-bar"><span class="f-in">2026年9月第1周 ▾</span><button class="f-btn">＋ 排班</button></div>
+        <div class="duty-grid">
+          <div class="duty-cell"><div class="d">周一 9/1</div><div class="who">白班：王师傅</div><div class="who">夜班：赵师傅</div></div>
+          <div class="duty-cell"><div class="d">周二 9/2</div><div class="who">白班：李工</div><div class="who">夜班：王师傅</div></div>
+          <div class="duty-cell"><div class="d">周三 9/3</div><div class="who">白班：赵师傅</div><div class="who">夜班：李工</div></div>
+          <div class="duty-cell"><div class="d">周四 9/4</div><div class="who">白班：王师傅</div><div class="who">夜班：赵师傅</div></div>
+          <div class="duty-cell"><div class="d">周五 9/5</div><div class="who">白班：李工</div><div class="who">夜班：王师傅</div></div>
+          <div class="duty-cell off"><div class="d">周六 9/6</div><div class="who">轮值：赵师傅</div></div>
+          <div class="duty-cell off"><div class="d">周日 9/7</div><div class="who">轮值：李工</div></div>
+        </div>
+        <div class="page-note">💡 值班关联：<b>值班津贴自动计入薪酬绩效</b>（3.6.3）；值班日志/交班记录沉淀为执行记录层证据。</div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ 财务结算（6页） ═══════════════ -->
+    <section class="pg" data-page="fin-flow" data-plat="fin">
+      <div class="page-head"><h1>资金流水</h1><span class="who"><b>财务</b>银企直连 · 自动认领</span></div>
+      <div class="stats-row">
+        <div class="kcard"><div class="l">本月流入</div><div class="v" style="color:#00b578">286万</div><div class="s">含 SaaS 订阅收款</div></div>
+        <div class="kcard"><div class="l">本月流出</div><div class="v" style="color:#fa5151">198万</div><div class="s">人工/材料/分包/费用</div></div>
+        <div class="kcard"><div class="l">待认领流水</div><div class="v" style="color:#f59f00">7 笔</div><div class="s">需人工关联单据</div></div>
+        <div class="kcard"><div class="l">当前资金余额</div><div class="v">1,240万</div><div class="s">未来 3 月预测结余 ▸ 经营分析</div></div>
+      </div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">日期区间</span><span class="f-in">类型 ▾</span><span class="f-in">认领状态 ▾</span><button class="f-btn">查询</button><button class="f-btn ghost">🏦 同步银行流水</button></div>
+        <table class="tbl"><thead><tr><th>交易日期</th><th>对方账户</th><th>金额</th><th>方向</th><th>认领状态</th><th>关联单据</th></tr></thead><tbody>
+          <tr><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:90px"></span></td><td><b>180,000</b></td><td><span class="tag t-green">收入</span></td><td><span class="tag t-teal">自动匹配 ✓</span></td><td><span class="sk" style="width:80px"></span></td></tr>
+          <tr><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:90px"></span></td><td><b>-45,200</b></td><td><span class="tag t-red">支出</span></td><td><span class="tag t-orange">待认领</span></td><td>—</td></tr>
+        </tbody></table>
+        <div class="page-note">💡 银企直连实时拉取流水；<b>业务认领机制</b>：自动匹配合同/回款/报销，匹配不上的进入待认领池人工处理。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="fin-invoice" data-plat="fin">
+      <div class="page-head"><h1>发票管理</h1><span class="who"><b>财务</b>销项/进项全生命周期 + 税额分析</span></div>
+      <div class="card" data-note="发票全生命周期：申请 → 审批 → 开具 → 寄送 → 签收（状态看板）">
+        <div class="subtabs"><span class="stab on">销项发票</span><span class="stab">进项发票</span><span class="stab">税额分析</span></div>
+        <div class="kanban">
+          <div class="kcol"><h4>📝 待开<span class="n">3</span></h4><div class="kcard2"><div class="ti">XX 大厦 · 进度款 24万</div><div class="meta"><span>关联合同 #88</span></div></div></div>
+          <div class="kcol"><h4>🧾 已开<span class="n">5</span></h4><div class="kcard2"><div class="ti">XX 厂区 · 预付款 18万</div><div class="meta"><span>待寄送</span></div></div></div>
+          <div class="kcol"><h4>📦 已寄送<span class="n">2</span></h4><div class="kcard2"><div class="ti">XX 学校 · 质保金 6万</div><div class="meta"><span>快递 SF1234</span></div></div></div>
+          <div class="kcol"><h4>✅ 已签收<span class="n">8</span></h4><div class="kcard2"><div class="ti">XX 酒店 · 验收款 30万</div><div class="meta"><span>已核销</span></div></div></div>
+        </div>
+        <div class="page-note">💡 进项发票支持<b>扫描/导入自动识别</b>金额、税率并与采购单关联；按项目汇总销项/进项/应缴税额并预警“该收的票未收”。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="fin-writeoff" data-plat="fin">
+      <div class="page-head"><h1>回款核销</h1><span class="who"><b>财务</b>流水 → 应收节点 核销闭环</span></div>
+      <div class="card">
+        <table class="tbl"><thead><tr><th>应收节点</th><th>客户</th><th>应收</th><th>已核销</th><th>待核销</th><th>状态</th><th>操作</th></tr></thead><tbody>
+          <tr><td><b>XX 大厦 · 预付款</b></td><td><span class="sk" style="width:60px"></span></td><td>18万</td><td>18万</td><td>0</td><td><span class="tag t-green">已核销</span></td><td><span class="tag t-gray">—</span></td></tr>
+          <tr><td><b>XX 厂区 · 进度款</b></td><td><span class="sk" style="width:60px"></span></td><td>30万</td><td>12万</td><td>18万</td><td><span class="tag t-orange">部分核销</span></td><td><span class="tag t-blue">核销</span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 核销动作把「资金流水」与「回款计划」勾稽：一笔流水可拆分核销多个节点，全程留痕。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="fin-recon" data-plat="fin">
+      <div class="page-head"><h1>对账管理</h1><span class="who"><b>财务</b>四类对账 · 差异自动生成调整单</span></div>
+      <div class="grid2">
+        <div class="card"><h3>⚖️ 对账任务</h3>
+          <table class="tbl"><thead><tr><th>对账类型</th><th>周期</th><th>差异数</th><th>状态</th></tr></thead><tbody>
+            <tr><td><b>银行对账</b></td><td>每日</td><td><span class="tag t-orange">2 笔</span></td><td><span class="tag t-blue">待复核</span></td></tr>
+            <tr><td><b>收支对账</b></td><td>每周</td><td><span class="tag t-green">0</span></td><td><span class="tag t-green">平</span></td></tr>
+            <tr><td><b>往来对账（客户/供应商）</b></td><td>每月</td><td><span class="sk" style="width:40px"></span></td><td><span class="sk" style="width:50px"></span></td></tr>
+            <tr><td><b>第三方支付对账</b></td><td>每日</td><td><span class="tag t-green">0</span></td><td><span class="tag t-green">平</span></td></tr>
+          </tbody></table>
+        </div>
+        <div class="card"><h3>⚠️ 差异处理</h3>
+          <div class="warn-card w-orange"><span>🟠</span><div><b>差异 #1</b>：系统流水 12,000 vs 银行 12,500（手续费 500 未入账）→ 已生成调整单</div></div>
+          <div class="warn-card w-orange"><span>🟠</span><div><b>差异 #2</b>：重复导入一笔报销流水 → 待人工复核删除</div></div>
+          <div class="page-note" style="margin-top:6px">💡 差异自动生成调整单，保留人工复核审批留痕；对账效率目标提升 80%。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="fin-cost" data-plat="fin">
+      <div class="page-head"><h1>成本核算</h1><span class="who"><b>财务 / 项目经理</b>人工+材料+分包 归集到项目</span></div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">项目 ▾</span><span class="f-in">成本科目 ▾</span><span class="f-in">月份 ▾</span><button class="f-btn">查询</button></div>
+        <table class="tbl"><thead><tr><th>项目</th><th>预算</th><th>人工</th><th>材料</th><th>分包</th><th>合计</th><th>使用率</th><th>状态</th></tr></thead><tbody>
+          <tr><td><b>XX 大厦消防改造</b></td><td>52万</td><td><span class="sk" style="width:45px"></span></td><td><span class="sk" style="width:45px"></span></td><td><span class="sk" style="width:45px"></span></td><td>38.6万</td><td><div class="prog-bar" style="width:80px;display:inline-flex;vertical-align:middle"><i style="width:74%;background:#f59f00"></i></div> 74%</td><td><span class="tag t-orange">接近阈值</span></td></tr>
+          <tr><td><b>XX 学校维保</b></td><td>18万</td><td><span class="sk" style="width:45px"></span></td><td><span class="sk" style="width:45px"></span></td><td><span class="sk" style="width:45px"></span></td><td>6.2万</td><td><div class="prog-bar" style="width:80px;display:inline-flex;vertical-align:middle"><i style="width:34%;background:#00b578"></i></div> 34%</td><td><span class="tag t-green">健康</span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 报销单可选<b>关联项目</b>自动归集；劳务分包结算单归集分包成本，纳入项目毛利（解决“利润核算失真”）；超 80% 自动预警。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="fin-settle" data-plat="fin">
+      <div class="page-head"><h1>结算管理</h1><span class="who"><b>财务</b>竣工 / 分包 / 质保金 + 坏账</span></div>
+      <div class="card">
+        <table class="tbl"><thead><tr><th>结算单</th><th>类型</th><th>关联项目</th><th>金额</th><th>状态</th><th>审批</th></tr></thead><tbody>
+          <tr><td><b>JS-2026-012</b></td><td><span class="tag t-teal">竣工结算</span></td><td><span class="sk" style="width:90px"></span></td><td>52万</td><td><span class="tag t-green">已结算</span></td><td><span class="tag t-green">已通过</span></td></tr>
+          <tr><td><b>JS-2026-015</b></td><td><span class="tag t-blue">分包结算</span></td><td><span class="sk" style="width:90px"></span></td><td>4.5万</td><td><span class="tag t-orange">待审批</span></td><td><span class="tag t-orange">财务总监</span></td></tr>
+          <tr><td><b>JS-2026-009</b></td><td><span class="tag t-purple">质保金</span></td><td><span class="sk" style="width:90px"></span></td><td>6万</td><td><span class="tag t-yellow">质保期中</span></td><td>—</td></tr>
+        </tbody></table>
+        <div class="page-note">💡 逾期 <b>180 天</b>应收自动标记坏账预警，支持计提与核销审批；质保金到期自动提醒回收。</div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ 经营分析（6页） ═══════════════ -->
+    <section class="pg" data-page="bi-board" data-plat="bi">
+      <div class="page-head"><h1>经营看板（驾驶舱）</h1><span class="who"><b>老板 / 管理层</b>双营收一屏总览</span></div>
+      <div class="card" data-note="双营收结构：自营 vs SaaS 分线核算（竞品不具备的统一视图）">
+        <h3>💼 双营收总览（本月）<span class="hint">月/季/年 · 同比/环比</span></h3>
+        <div class="duo-bar"><div class="lb"><span>🏗️ 自营业务收入</span><b>380万 · 62%</b></div>
+          <div class="bar"><i style="left:0;width:62%;background:linear-gradient(90deg,#339af0,#4dabf7)">维保+工程+检测+维修</i></div></div>
+        <div class="duo-bar"><div class="lb"><span>☁️ SaaS 订阅收入</span><b>232万 · 38%</b></div>
+          <div class="bar"><i style="right:0;width:38%;background:linear-gradient(90deg,#51cf66,#69db7c)">订阅+增值+佣金</i></div></div>
+        <div class="kpi4" style="margin-top:12px">
+          <div class="kcard"><div class="l">毛利率</div><div class="v" style="color:#00b578">28.4%</div><div class="s">阈值 20%</div></div>
+          <div class="kcard"><div class="l">SaaS · ARR</div><div class="v" style="color:#7048e8">2,780万</div><div class="s" style="color:#00b578">NRR 108%</div></div>
+          <div class="kcard"><div class="l">续约率</div><div class="v" style="color:#0ca678">83%</div><div class="s">目标 85%</div></div>
+          <div class="kcard"><div class="l">LTV / CAC</div><div class="v">4.2</div><div class="s">健康值 &gt; 3</div></div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h3>🚨 风险预警<span class="hint">自动推送至微信/钉钉</span></h3>
+          <div class="warn-card w-red"><span>🔴</span><div><b>亏损项目 2 个</b>：XX 改造工程超预算 15%</div></div>
+          <div class="warn-card w-orange"><span>🟠</span><div><b>逾期应收 TOP5</b> 合计 128 万</div></div>
+          <div class="warn-card w-blue"><span>🔵</span><div><b>流失风险租户 3 家</b>（AI 预测，P2）</div></div>
+        </div>
+        <div class="card"><h3>📈 今日概览</h3>
+          <div class="stats-row" style="grid-template-columns:1fr 1fr;margin:0">
+            <div class="kcard"><div class="l">今日自营回款</div><div class="v" style="font-size:17px">12.6万</div></div>
+            <div class="kcard"><div class="l">今日 SaaS 新增订阅</div><div class="v" style="font-size:17px">1 家</div></div>
+            <div class="kcard"><div class="l">今日工单完工</div><div class="v" style="font-size:17px">23 单</div></div>
+            <div class="kcard"><div class="l">今日逾期工单</div><div class="v" style="font-size:17px;color:#fa5151">4 单</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="bi-proj" data-plat="bi">
+      <div class="page-head"><h1>项目利润</h1><span class="who"><b>老板</b>Top10 盈亏排行 · 全生命周期追踪</span></div>
+      <div class="card">
+        <h3>🏆 项目利润排行（本年度）</h3>
+        <div class="colbar"><div class="lb"><span>1. XX 商场消防改造</span><b style="color:#00b578">+42.6万 · 毛利率 42%</b></div><div class="bar"><i style="width:88%;background:linear-gradient(90deg,#00b578,#38ef7d)">收入 101万 · 成本 58.4万</i></div></div>
+        <div class="colbar"><div class="lb"><span>2. XX 大厦维保（3年）</span><b style="color:#00b578">+28.1万 · 毛利率 35%</b></div><div class="bar"><i style="width:62%;background:linear-gradient(90deg,#00b578,#63e6be)">收入 80万 · 成本 51.9万</i></div></div>
+        <div class="colbar"><div class="lb"><span>3. XX 学校维保</span><b style="color:#00b578">+8.4万</b></div><div class="bar"><i style="width:22%;background:#63e6be"></i></div></div>
+        <div class="colbar"><div class="lb"><span>4. XX 改造工程 ⚠️</span><b style="color:#fa5151">-3.2万 · 超支 15%</b></div><div class="bar"><i style="width:12%;background:#fa5151">亏损</i></div></div>
+        <div class="page-note">💡 收入/成本/费用/利润按项目归集；<b>亏损项目自动标红</b>并触发预警；支持按 项目/客户/部门/时间 下钻。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="bi-dept" data-plat="bi">
+      <div class="page-head"><h1>部门利润</h1><span class="who"><b>管理层</b>部门作为利润中心横向对比</span></div>
+      <div class="card">
+        <div class="colbar"><div class="lb"><span>维保一部</span><b style="color:#00b578">收入 480万 · 利润 96万 · 20%</b></div><div class="bar"><i style="width:80%;background:linear-gradient(90deg,#339af0,#4dabf7)">人均产值 32万</i></div></div>
+        <div class="colbar"><div class="lb"><span>维保二部</span><b style="color:#00b578">收入 396万 · 利润 63万 · 16%</b></div><div class="bar"><i style="width:66%;background:#4dabf7">人均产值 28万</i></div></div>
+        <div class="colbar"><div class="lb"><span>工程部</span><b style="color:#f59f00">收入 520万 · 利润 52万 · 10%</b></div><div class="bar"><i style="width:52%;background:#f59f00">分包占比高</i></div></div>
+        <div class="colbar"><div class="lb"><span>检测部</span><b style="color:#00b578">收入 210万 · 利润 67万 · 32%</b></div><div class="bar"><i style="width:35%;background:#7048e8">高毛利</i></div></div>
+        <div class="page-note">💡 部门间收入/成本/利润横向对比 + 人均产值，支撑<b>部门经营绩效考核</b>。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="bi-cust" data-plat="bi">
+      <div class="page-head"><h1>客户利润</h1><span class="who"><b>老板 / 销售</b>识别黄金客户与赔钱客户</span></div>
+      <div class="card">
+        <table class="tbl"><thead><tr><th>客户</th><th>累计收入</th><th>累计成本</th><th>累计利润</th><th>利润率</th><th>客户健康度</th><th>标签</th></tr></thead><tbody>
+          <tr><td><b>XX 商业综合体</b></td><td>320万</td><td>182万</td><td><b style="color:#00b578">+138万</b></td><td>43%</td><td><span class="tag t-green">绿灯</span></td><td><span class="tag t-yellow">⭐ 黄金客户</span></td></tr>
+          <tr><td><b>XX 物业公司</b></td><td>96万</td><td>112万</td><td><b style="color:#fa5151">-16万</b></td><td>-17%</td><td><span class="tag t-red">红灯</span></td><td><span class="tag t-red">赔钱客户</span></td></tr>
+          <tr><td><span class="sk" style="width:90px"></span></td><td><span class="sk" style="width:60px"></span></td><td><span class="sk" style="width:60px"></span></td><td><span class="sk" style="width:60px"></span></td><td><span class="sk" style="width:40px"></span></td><td><span class="tag t-orange">黄灯</span></td><td>—</td></tr>
+        </tbody></table>
+        <div class="page-note">💡 交叉分析：同一客户的<b>自营服务消费 vs SaaS 订阅金额</b>，识别“高价值双料客户”作为交叉销售目标。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="bi-aging" data-plat="bi">
+      <div class="page-head"><h1>账龄分析</h1><span class="who"><b>财务 / 老板</b>应收逾期分段 · 降低坏账风险</span></div>
+      <div class="card">
+        <h3>⏳ 应收账龄分布（合计应收 486万）</h3>
+        <div class="colbar"><div class="lb"><span>0-30 天（正常）</span><b>312万 · 64%</b></div><div class="bar"><i style="width:64%;background:linear-gradient(90deg,#00b578,#63e6be)">健康</i></div></div>
+        <div class="colbar"><div class="lb"><span>31-60 天</span><b>86万 · 18%</b></div><div class="bar"><i style="width:18%;background:#f59f00">关注</i></div></div>
+        <div class="colbar"><div class="lb"><span>61-90 天</span><b>56万 · 12%</b></div><div class="bar"><i style="width:12%;background:#f76707">催收</i></div></div>
+        <div class="colbar"><div class="lb"><span>90+ 天（高危）</span><b>32万 · 6%</b></div><div class="bar"><i style="width:6%;background:#fa5151">⚠</i></div></div>
+        <div class="page-note">💡 每笔逾期款<b>关联责任销售/项目经理</b>；结合「客户信用管理」对低信用客户在签约/报价环节前置拦截（3.3.3）。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="bi-goal" data-plat="bi">
+      <div class="page-head"><h1>年度目标</h1><span class="who"><b>老板</b>完成进度 vs 时间进度 动态追踪</span></div>
+      <div class="card" data-note="年度目标：完成线 vs 时间线，落后即预警归因">
+        <h3>🎯 目标达成（示例：时间过半 · 完成 42%）</h3>
+        <div class="goal-row"><span style="width:90px">总目标 2,000万</span><div class="gb"><i style="left:0;width:42%;background:linear-gradient(90deg,#7048e8,#9775fa)"></i><em style="left:50%"></em></div><b>42%</b></div>
+        <div class="goal-row"><span style="width:90px">自营业务 1,200万</span><div class="gb"><i style="left:0;width:46%;background:#339af0"></i><em style="left:50%"></em></div><b>46% ✓</b></div>
+        <div class="goal-row"><span style="width:90px">SaaS 业务 800万</span><div class="gb"><i style="left:0;width:38%;background:#51cf66"></i><em style="left:50%"></em></div><b style="color:#fa5151">38% ⚠ 落后 12%</b></div>
+        <div class="warn-card w-orange" style="margin-top:8px"><span>🟠</span><div><b>SaaS 缺口归因</b>：Q2 新签租户 3 家流失 + 2 家续约延期。建议：启动客户成功干预（健康度红灯挽留）+ 老客推荐激励</div></div>
+        <div class="page-note">💡 目标按 <b>自营/SaaS → 季度/月度/部门</b> 逐层分解；落后时间进度 10% 自动预警并输出归因。</div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ 系统管理（5页） ═══════════════ -->
+    <section class="pg" data-page="sys-org" data-plat="sys">
+      <div class="page-head"><h1>组织架构</h1><span class="who"><b>管理员</b>RBAC · 多租户数据隔离</span></div>
+      <div class="grid2" style="grid-template-columns:1fr 1.6fr">
+        <div class="card"><h3>🧬 组织树</h3>
+          <div class="tree">
+            <div class="tg">▼ 云南诺盾消防工程技术有限公司</div>
+            <div class="sub">
+              <div>▾ 维保事业部</div>
+              <div class="sub"><div>维保一部（12人）</div><div>维保二部（9人）</div></div>
+              <div>▸ 工程部（8人）</div>
+              <div>▸ 检测部（5人）</div>
+              <div>▸ 财务部（3人）</div>
+              <div>▸ SaaS 运营部（6人）</div>
+            </div>
+          </div>
+        </div>
+        <div class="card"><h3>👥 成员列表（维保一部）</h3>
+          <table class="tbl"><thead><tr><th>姓名</th><th>岗位</th><th>角色</th><th>持证</th><th>状态</th></tr></thead><tbody>
+            <tr><td><b>王师傅</b></td><td>维保技工</td><td>技工</td><td><span class="tag t-green">操作员证 ✓</span></td><td><span class="sk" style="width:40px"></span></td></tr>
+            <tr><td><b>李工</b></td><td>项目经理</td><td>项目经理</td><td><span class="tag t-green">工程师 ✓</span></td><td><span class="sk" style="width:40px"></span></td></tr>
+          </tbody></table>
+          <div class="page-note">💡 资质证照到期前 <b>90 天</b>自动提醒续证；自营与租户数据<b>物理隔离</b>。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="sys-role" data-plat="sys">
+      <div class="page-head"><h1>角色权限</h1><span class="who"><b>管理员</b>角色 × 平台 权限矩阵</span></div>
+      <div class="card" data-note="权限矩阵：正式环境中无权限平台对相应角色隐藏入口（原型演示模式全开放）">
+        <h3>🔐 角色 × 平台权限矩阵<span class="hint">本原型全平台开放，仅供演示</span></h3>
+        <table class="mx">
+          <thead><tr><th>角色</th><th>🏠 工作台</th><th>🤝 客户商机</th><th>🧯 消防作业</th><th>💰 财务结算</th><th>📊 经营分析</th><th>⚙️ 系统管理</th></tr></thead>
+          <tbody>
+            <tr><td>👨‍💼 老板/管理层</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>🤝 销售</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td></tr>
+            <tr><td>📋 项目经理</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td></tr>
+            <tr><td>🔧 技工/维保</td><td class="yes">✓</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+            <tr><td>💰 财务</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td></tr>
+            <tr><td>👥 业主（独立端）</td><td colspan="6" style="color:#0ca678;font-weight:600">业主自管平台（独立登录 · 数据隔离 · 仅读+报修/签字）</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="pg" data-page="sys-flow" data-plat="sys">
+      <div class="page-head"><h1>审批配置</h1><span class="who"><b>管理员</b>自定义流程 + 自动审批规则</span></div>
+      <div class="grid2">
+        <div class="card"><h3>✅ 自动审批规则</h3>
+          <table class="tbl"><thead><tr><th>规则</th><th>条件</th><th>动作</th><th>状态</th></tr></thead><tbody>
+            <tr><td><b>小额采购直通</b></td><td>金额 &lt; 100 元</td><td>自动通过</td><td><span class="tag t-green">启用</span></td></tr>
+            <tr><td><b>大额报销双审</b></td><td>金额 &gt; 5000 元</td><td>总监 + 财务</td><td><span class="tag t-green">启用</span></td></tr>
+            <tr><td><b>折扣审批</b></td><td>报价折扣 &gt; 85 折</td><td>销售总监</td><td><span class="sk" style="width:40px"></span></td></tr>
+          </tbody></table>
+        </div>
+        <div class="card"><h3>🧩 流程画布</h3>
+          <div class="ph" style="min-height:110px">按 <b>业务类型 × 金额区间 × 角色</b> 拖拽配置审批节点<br>支持 驳回 / 批注 / 加签；手机端可审批</div>
+          <div class="page-note">💡 审批时效目标缩短 50%；审批数据回流「消息通知」与「工作台清单」。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="sys-set" data-plat="sys">
+      <div class="page-head"><h1>平台设置</h1><span class="who"><b>管理员</b>全局配置</span></div>
+      <div class="card">
+        <table class="tbl"><thead><tr><th>配置分组</th><th>配置项示例</th><th>说明</th></tr></thead><tbody>
+          <tr><td><b>基础信息</b></td><td>公司名称 / Logo / 多租户开关</td><td>—</td></tr>
+          <tr><td><b>水印相机</b></td><td>强制原生相机 / 水印字段（时间·经纬度·项目·工单号·姓名）</td><td><span class="tag t-green">不可篡改</span></td></tr>
+          <tr><td><b>监管对接</b></td><td>已接入省份：浙江 ✓ 云南（对接中）｜ 模板字段映射</td><td><span class="tag t-teal">按省适配</span></td></tr>
+          <tr><td><b>版本与套餐</b></td><td>基础版 / 专业版 / 旗舰版 功能开关</td><td><span class="tag t-purple">商业化</span></td></tr>
+          <tr><td><b>通知渠道</b></td><td>微信 / 钉钉 / 短信 推送开关</td><td>—</td></tr>
+        </tbody></table>
+      </div>
+    </section>
+
+    <section class="pg" data-page="sys-log" data-plat="sys">
+      <div class="page-head"><h1>日志审计</h1><span class="who"><b>管理员</b>全量操作留痕 · 支撑监管倒查</span></div>
+      <div class="card">
+        <div class="filter-bar"><span class="f-in">操作人</span><span class="f-in">操作类型 ▾</span><span class="f-in">日期区间</span><button class="f-btn">查询</button></div>
+        <table class="tbl"><thead><tr><th>时间</th><th>操作人</th><th>模块</th><th>动作</th><th>对象</th><th>IP / 终端</th></tr></thead><tbody>
+          <tr><td><span class="sk" style="width:90px"></span></td><td>诺总</td><td>经营分析</td><td><span class="tag t-blue">查看</span></td><td>双营收看板</td><td><span class="sk" style="width:70px"></span></td></tr>
+          <tr><td><span class="sk" style="width:90px"></span></td><td>陈会计</td><td>财务结算</td><td><span class="tag t-orange">修改</span></td><td>核销单 JS-012</td><td><span class="sk" style="width:70px"></span></td></tr>
+          <tr><td><span class="sk" style="width:90px"></span></td><td>Admin</td><td>系统管理</td><td><span class="tag t-red">导出</span></td><td>客户列表</td><td><span class="sk" style="width:70px"></span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 数据导出全量审计；执行记录层（水印/SOP/签名）+ 审计日志共同构成<b>监管检查证据链</b>（服务档案保存 ≥6 年）。</div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ 业主自管（8页） ═══════════════ -->
+    <section class="pg" data-page="own-home" data-plat="own">
+      <div class="page-head"><h1>服务总览</h1><span class="who"><b>业主视角</b>独立登录 · 只读服务数据 + 报修/签字交互</span></div>
+      <div class="greet" style="background:linear-gradient(135deg,#12b886,#38d9a9)">👋 您好，XX 大厦物业管理处！本月服务一切正常，<b>2 件事</b> 需要您确认：</div>
+      <div class="grid3">
+        <div class="card" style="grid-row:span 2">
+          <h3>📋 待您处理</h3>
+          <div class="todo-item"><span class="cb"></span><span class="txt">① 确认签字：XX 医院 · 季度维保完工单</span><span class="go" style="background:#12b886">去签字</span></div>
+          <div class="todo-item"><span class="cb"></span><span class="txt">② 隐患整改确认：消火栓门损坏（已修复，待验收）</span><span class="go" style="background:#12b886">去验收</span></div>
+          <div class="page-note" style="margin-top:10px">💡 业主端的“清单”只包含<b>需要业主参与的事项</b>（签字/验收/确认），与员工端待办完全不同。</div>
+        </div>
+        <div class="card"><h3>📟 设备概览</h3>
+          <div class="sum-strip"><div class="sum-kpi"><div class="v" style="color:#00b578">98.2%</div><div class="l">设备完好率</div></div><div class="sum-kpi"><div class="v" style="color:#f76707">3</div><div class="l">待整改隐患</div></div></div>
+        </div>
+        <div class="card"><h3>⚡ 快捷服务</h3>
+          <div class="qgrid"><div class="qcell"><i>🆘</i>一键报修</div><div class="qcell"><i>📄</i>下载报告</div><div class="qcell"><i>🗓️</i>服务排期</div></div>
+        </div>
+        <div class="card"><h3>💬 服务通知</h3>
+          <div class="msg-line"><span class="dot" style="background:#12b886"></span><div>本月维保已完成，报告已生成可下载</div></div>
+          <div class="msg-line"><span class="dot" style="background:#f59f00"></span><div>年度检测安排在 11 月（合同生效 11 个月内）</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="own-patrol" data-plat="own">
+      <div class="page-head"><h1>设备巡检</h1><span class="who"><b>业主 · 只读</b>查看本单位的巡检执行情况</span></div>
+      <div class="card">
+        <table class="tbl"><thead><tr><th>设备区域</th><th>设备类型</th><th>上次巡检</th><th>下次巡检</th><th>巡检结果</th><th>水印记录</th></tr></thead><tbody>
+          <tr><td><b>1# 楼消火栓系统</b></td><td><span class="sk" style="width:60px"></span></td><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:70px"></span></td><td><span class="tag t-green">正常</span></td><td><span class="tag t-teal">照片 6 张 ✓</span></td></tr>
+          <tr><td><b>地下室水泵房</b></td><td><span class="sk" style="width:60px"></span></td><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:70px"></span></td><td><span class="tag t-orange">1 项异常</span></td><td><span class="tag t-teal">照片 4 张 ✓</span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 业主只能查看<b>本单位</b>数据；巡检记录带水印（时间+位置）不可篡改，迎检时可直接出示。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="own-check" data-plat="own">
+      <div class="page-head"><h1>防火检查</h1><span class="who"><b>业主 · 只读</b>检查计划与结果公开透明</span></div>
+      <div class="card">
+        <table class="tbl"><thead><tr><th>检查名称</th><th>频次</th><th>最近执行</th><th>SOP 完成度</th><th>状态</th></tr></thead><tbody>
+          <tr><td><b>每日防火巡查</b></td><td>每日</td><td><span class="sk" style="width:70px"></span></td><td><div class="prog-bar" style="width:90px;display:inline-flex;vertical-align:middle"><i style="width:100%;background:#12b886"></i></div> 10/10</td><td><span class="tag t-green">已完成</span></td></tr>
+          <tr><td><b>每月防火检查</b></td><td>每月</td><td><span class="sk" style="width:70px"></span></td><td><div class="prog-bar" style="width:90px;display:inline-flex;vertical-align:middle"><i style="width:80%;background:#12b886"></i></div> 8/10</td><td><span class="tag t-blue">进行中</span></td></tr>
+        </tbody></table>
+      </div>
+    </section>
+
+    <section class="pg" data-page="own-risk" data-plat="own">
+      <div class="page-head"><h1>隐患整改</h1><span class="who"><b>业主 · 只读+确认</b>隐患发现 → 整改 → 业主验收 闭环</span></div>
+      <div class="card">
+        <div class="stats-row">
+          <div class="kcard"><div class="l">本月发现隐患</div><div class="v">7</div></div>
+          <div class="kcard"><div class="l">已整改闭环</div><div class="v" style="color:#00b578">4</div></div>
+          <div class="kcard"><div class="l">整改中</div><div class="v" style="color:#f59f00">2</div></div>
+          <div class="kcard"><div class="l">待您验收</div><div class="v" style="color:#12b886">1</div></div>
+        </div>
+        <table class="tbl"><thead><tr><th>隐患描述</th><th>等级</th><th>发现时间</th><th>整改期限</th><th>状态</th><th>操作</th></tr></thead><tbody>
+          <tr><td><b>消火栓箱门损坏</b></td><td><span class="tag t-orange">一般</span></td><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:70px"></span></td><td><span class="tag t-teal">已修复 · 待验收</span></td><td><span class="tag t-green">去验收</span></td></tr>
+          <tr><td><b>疏散通道堆放杂物</b></td><td><span class="tag t-red">严重</span></td><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:70px"></span></td><td><span class="tag t-orange">整改中</span></td><td>—</td></tr>
+        </tbody></table>
+        <div class="page-note">💡 整改闭环需<b>业主电子签名确认</b>；逾期未整改自动升级并留痕（对应监管“整改完成率”维度）。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="own-train" data-plat="own">
+      <div class="page-head"><h1>培训演练</h1><span class="who"><b>业主 · 只读</b>服务方为本单位提供的培训与演练</span></div>
+      <div class="card">
+        <table class="tbl"><thead><tr><th>培训/演练</th><th>日期</th><th>参与人数</th><th>影像记录</th><th>状态</th></tr></thead><tbody>
+          <tr><td><b>全员疏散演练</b></td><td><span class="sk" style="width:70px"></span></td><td>86 人</td><td><span class="tag t-teal">照片 12 张 + 视频</span></td><td><span class="tag t-green">已完成</span></td></tr>
+          <tr><td><b>灭火器实操培训</b></td><td><span class="sk" style="width:70px"></span></td><td><span class="sk" style="width:40px"></span></td><td><span class="sk" style="width:60px"></span></td><td><span class="tag t-orange">待安排</span></td></tr>
+        </tbody></table>
+        <div class="page-note">💡 培训演练记录是监管检查“作业标准”维度的证据之一，业主可直接下载用于迎检。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="own-duty" data-plat="own">
+      <div class="page-head"><h1>值班管理</h1><span class="who"><b>业主 · 只读</b>本单位消防值班安排与日志</span></div>
+      <div class="card">
+        <div class="duty-grid">
+          <div class="duty-cell"><div class="d">周一</div><div class="who">白班：张三（本单位）</div><div class="who">夜间联动：维保中心</div></div>
+          <div class="duty-cell"><div class="d">周二</div><div class="who">白班：李四</div><div class="who">夜间联动：维保中心</div></div>
+          <div class="duty-cell"><div class="d">周三</div><div class="who">白班：王五</div><div class="who">夜间联动：维保中心</div></div>
+          <div class="duty-cell"><div class="d">周四</div><div class="who">白班：张三</div><div class="who">夜间联动：维保中心</div></div>
+          <div class="duty-cell"><div class="d">周五</div><div class="who">白班：李四</div><div class="who">夜间联动：维保中心</div></div>
+          <div class="duty-cell off"><div class="d">周六</div><div class="who">轮值：王五</div></div>
+          <div class="duty-cell off"><div class="d">周日</div><div class="who">轮值：张三</div></div>
+        </div>
+        <div class="page-note">💡 业主侧值班可与<b>维保中心夜间联动</b>；值班日志业主可查阅（监管“记录真实性”维度）。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="own-file" data-plat="own">
+      <div class="page-head"><h1>消防档案</h1><span class="who"><b>业主 · 只读+下载</b>服务档案保存 ≥6 年 · 迎检即取</span></div>
+      <div class="card">
+        <div class="folder">
+          <div class="fcell"><i>📑</i>维保合同<b class="n">1 份 · 履约中</b></div>
+          <div class="fcell"><i>🔍</i>检测报告<b class="n">4 份 · 含官方编号</b></div>
+          <div class="fcell"><i>🔧</i>维保记录<b class="n">36 份 · 本年度</b></div>
+          <div class="fcell"><i>💊</i>年度健康报告<b class="n">2025 版 · 可下载</b></div>
+        </div>
+        <div class="page-note">💡 档案按 <b>“客户 → 项目 → 业务对象”</b> 三级归档（解决文件堆叠）；检测报告已<b>在监管平台备案</b>，电子档案可直接应对远程调取。</div>
+      </div>
+    </section>
+
+    <section class="pg" data-page="own-repair" data-plat="own">
+      <div class="page-head"><h1>一键报修</h1><span class="who"><b>业主 · 交互</b>报修 → 实时进度 → 完工确认</span></div>
+      <div class="grid2">
+        <div class="card"><h3>🆘 发起报修</h3>
+          <div class="ph" style="min-height:140px;flex-direction:column;gap:8px">
+            <b>报修表单示意</b>
+            故障位置（拍照自动定位）· 故障描述 · 紧急程度<br>
+            提交后自动推送维保中心 → 应急派工
+          </div>
+        </div>
+        <div class="card"><h3>📋 我的报修</h3>
+          <table class="tbl"><thead><tr><th>报修单</th><th>故障</th><th>进度</th><th>状态</th></tr></thead><tbody>
+            <tr><td><b>BX-0088</b></td><td>2层走道烟感报警</td><td><span class="tag t-orange">维修中 · 师傅已到场</span></td><td>处理中</td></tr>
+            <tr><td><b>BX-0085</b></td><td>消火栓漏水</td><td><span class="tag t-green">已修复 · 待您确认</span></td><td><span class="tag t-green">去确认</span></td></tr>
+          </tbody></table>
+          <div class="page-note">💡 报修自动生成<b>应急维修工单</b>；业主可实时查看节点进度（到场/维修中/完工），完工后电子签名闭环。</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ================= 浮动工具条 ================= -->
+<div class="toolbar">
+  <div class="tb-title">7 大平台 · 43 个页面 · 全开放</div>
+  <button class="tb-btn" id="noteBtn">🏷️ 标注模式：<b id="noteState">关</b></button>
+  <button class="tb-btn" id="iaBtn">🗺️ 平台架构总览</button>
+</div>
+
+<!-- ================= 架构总览弹层 ================= -->
+<div class="modal-mask" id="iaMask">
+  <div class="modal">
+    <button class="close-x" id="iaClose">✕</button>
+    <h2>诺安云 · 场景化平台架构总览（含业主端）</h2>
+    <div class="sub">6 个员工端平台 + 1 个业主端独立平台。左侧菜单固定 ≤8 项，内容区子导航细分；业主端数据与员工端完全隔离。</div>
+    <div class="ia-grid">
+      <div class="ia-card"><div class="ia-head" style="background:var(--c-work)">🏠 工作台<small>全员 · 5 页</small></div><div class="ia-body"><div class="u">清单第一视觉区</div><span class="ia-chip">今日待办</span><span class="ia-chip">我的工单</span><span class="ia-chip">消息通知</span><span class="ia-chip">日程日历</span><span class="ia-chip">快捷入口</span></div></div>
+      <div class="ia-card"><div class="ia-head" style="background:var(--c-crm)">🤝 客户商机<small>销售/PM/老板 · 5 页</small></div><div class="ia-body"><div class="u">拆解引擎贯通主线</div><span class="ia-chip">客户管理</span><span class="ia-chip">商机管理</span><span class="ia-chip">合同管理</span><span class="ia-chip">项目管理</span><span class="ia-chip">回款管理</span></div></div>
+      <div class="ia-card"><div class="ia-head" style="background:var(--c-ops)">🧯 消防作业<small>技工/维保/值班 · 8 页</small></div><div class="ia-body"><div class="u">现场执行闭环</div><span class="ia-chip">设备管理</span><span class="ia-chip">维保管理</span><span class="ia-chip">防火检查</span><span class="ia-chip">检测管理</span><span class="ia-chip">培训演练</span><span class="ia-chip">应急救援</span><span class="ia-chip">工单中心</span><span class="ia-chip">值班管理</span></div></div>
+      <div class="ia-card"><div class="ia-head" style="background:var(--c-fin)">💰 财务结算<small>财务/PM/老板 · 6 页</small></div><div class="ia-body"><div class="u">银企直连·自动对账</div><span class="ia-chip">资金流水</span><span class="ia-chip">发票管理</span><span class="ia-chip">回款核销</span><span class="ia-chip">对账管理</span><span class="ia-chip">成本核算</span><span class="ia-chip">结算管理</span></div></div>
+      <div class="ia-card"><div class="ia-head" style="background:var(--c-bi)">📊 经营分析<small>老板/管理层 · 6 页</small></div><div class="ia-body"><div class="u">双营收驾驶舱</div><span class="ia-chip">经营看板</span><span class="ia-chip">项目利润</span><span class="ia-chip">部门利润</span><span class="ia-chip">客户利润</span><span class="ia-chip">账龄分析</span><span class="ia-chip">年度目标</span></div></div>
+      <div class="ia-card"><div class="ia-head" style="background:var(--c-sys)">⚙️ 系统管理<small>管理员 · 5 页</small></div><div class="ia-body"><div class="u">管理与业务分离</div><span class="ia-chip">组织架构</span><span class="ia-chip">角色权限</span><span class="ia-chip">审批配置</span><span class="ia-chip">平台设置</span><span class="ia-chip">日志审计</span></div></div>
+      <div class="ia-card" style="grid-column:span 2"><div class="ia-head" style="background:var(--c-own)">👥 业主自管（独立端 · 8 页）<small>业主 · 数据与员工端隔离 · 只读 + 报修/签字/验收</small></div><div class="ia-body"><div class="u">对应文档“三端对照”中的业主端能力</div><span class="ia-chip">服务总览</span><span class="ia-chip">设备巡检</span><span class="ia-chip">防火检查</span><span class="ia-chip">隐患整改</span><span class="ia-chip">培训演练</span><span class="ia-chip">值班管理</span><span class="ia-chip">消防档案</span><span class="ia-chip">一键报修</span></div></div>
+    </div>
+    <div class="ia-arrow">
+      关键交互规则：<b>① 平台记忆</b> · <b>② 快捷入口自定义</b> · <b>③ 全局搜索不变</b> · <b>④ 权限过滤</b>（正式环境按角色隐藏入口） · <b>⑤ 业主端独立</b>
+    </div>
+  </div>
+</div>
+
+<script>
+  const tabs=[...document.querySelectorAll('.ptab')];
+  const sideNavs=[...document.querySelectorAll('.side-nav')];
+  const pages=[...document.querySelectorAll('.pg')];
+  const crumb=document.getElementById('crumb');
+
+  function showPage(id){
+    const pg=pages.find(p=>p.dataset.page===id);
+    if(!pg) return;
+    const plat=pg.dataset.plat;
+    const tab=tabs.find(t=>t.dataset.p===plat);
+    /* 主题色切换 */
+    document.documentElement.style.setProperty('--acc',tab.dataset.c);
+    /* 顶部 / 侧栏 / 页面 三级联动 */
+    tabs.forEach(t=>{t.classList.toggle('on',t===tab);
+      if(!t.classList.contains('owner-tab')) t.style.background=t.classList.contains('on')?t.dataset.c:'';
+      else t.style.background=t.classList.contains('on')?t.dataset.c:'';});
+    sideNavs.forEach(n=>n.classList.toggle('on',n.dataset.p===plat));
+    pages.forEach(p=>p.classList.toggle('on',p===pg));
+    document.querySelectorAll('.sitem').forEach(s=>s.classList.toggle('on',s.dataset.target===id));
+    /* 面包屑 */
+    const cap=document.querySelector(`.side-nav[data-p="${plat}"] .side-cap`).textContent.replace(/\s/g,'');
+    const itemName=document.querySelector(`.sitem[data-target="${id}"]`);
+    const sub=itemName?itemName.textContent.trim():'';
+    crumb.innerHTML=cap+' / <b>'+sub+'</b>';
+    window.scrollTo({top:0});
+  }
+
+  tabs.forEach(t=>t.addEventListener('click',()=>{
+    const first=document.querySelector(`.side-nav[data-p="${t.dataset.p}"] .sitem`);
+    if(first) showPage(first.dataset.target);
+  }));
+  document.querySelectorAll('.sitem').forEach(s=>s.addEventListener('click',()=>showPage(s.dataset.target)));
+
+  /* 标注模式 */
+  const noteBtn=document.getElementById('noteBtn');
+  noteBtn.addEventListener('click',()=>{
+    document.body.classList.toggle('notes');
+    const on=document.body.classList.contains('notes');
+    noteBtn.classList.toggle('on',on);
+    document.getElementById('noteState').textContent=on?'开':'关';
+  });
+
+  /* 架构弹层 */
+  const iaMask=document.getElementById('iaMask');
+  document.getElementById('iaBtn').addEventListener('click',()=>iaMask.classList.add('show'));
+  document.getElementById('iaClose').addEventListener('click',()=>iaMask.classList.remove('show'));
+  iaMask.addEventListener('click',e=>{if(e.target===iaMask)iaMask.classList.remove('show')});
+
+  showPage('work-todo');
+</script>
+</body>
+</html>
